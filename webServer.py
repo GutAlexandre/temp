@@ -34,303 +34,303 @@ import sys
 from collections import deque
 
 
-liste_slave = {
-    "RPC3301": {"id" : "0x0A","hard_id" :"0x00" },
-    "RPC3300": {"id" : "0x0B","hard_id" :"0x00" },
-    "P4C1790": {"id" : "0x0C","hard_id" :"0x00"},
-    "Broadcast": {"id" : "0x00","hard_id" :"0x00"},
-    "NoName1234": {"id" : "0x00","hard_id" :"0x00"},
-}
+# liste_slave = {
+#     "RPC3301": {"id" : "0x0A","hard_id" :"0x00" },
+#     "RPC3300": {"id" : "0x0B","hard_id" :"0x00" },
+#     "P4C1790": {"id" : "0x0C","hard_id" :"0x00"},
+#     "Broadcast": {"id" : "0x00","hard_id" :"0x00"},
+#     "NoName1234": {"id" : "0x00","hard_id" :"0x00"},
+# }
 
-globals()["database"] = []
-history_toast = []
-queue = deque()
-globals()["i"] = 0
-globals()["temp"] = None
-globals()["Json"] = {
-    "COMFORT": {
-        "heating_pad": {
-        "heating_None": "FALSE",
-        "command_temperature_°C": 0,
-        "actual_temperature_°C": 0
-        },
-        "mini_fridge": {
-        "cooling_None": "FALSE",
-        "can_1_presence_None": "FALSE",
-        "can_2_presence_None": "FALSE",
-        "command_temperature_°C": 0,
-        "actual_temperature_°C": 0
-        },
-        "reading_light": {
-        "actual_state_None": "ON",
-        "power_level_%": 10
-        },
-        # "mood_LEDs": {
-        # "R_%": 50,
-        # "G_%": 50,
-        # "B_%": 50,
-        # "W_%": 50
-        # }
-    },
-    "RPC3300": {},
-    "RPC3301": {},
-    "P4C1790": {}
-}
+# globals()["database"] = []
+# history_toast = []
+# queue = deque()
+# globals()["i"] = 0
+# globals()["temp"] = None
+# globals()["Json"] = {
+#     "COMFORT": {
+#         "heating_pad": {
+#         "heating_None": "FALSE",
+#         "command_temperature_°C": 0,
+#         "actual_temperature_°C": 0
+#         },
+#         "mini_fridge": {
+#         "cooling_None": "FALSE",
+#         "can_1_presence_None": "FALSE",
+#         "can_2_presence_None": "FALSE",
+#         "command_temperature_°C": 0,
+#         "actual_temperature_°C": 0
+#         },
+#         "reading_light": {
+#         "actual_state_None": "ON",
+#         "power_level_%": 10
+#         },
+#         # "mood_LEDs": {
+#         # "R_%": 50,
+#         # "G_%": 50,
+#         # "B_%": 50,
+#         # "W_%": 50
+#         # }
+#     },
+#     "RPC3300": {},
+#     "RPC3301": {},
+#     "P4C1790": {}
+# }
 
 
-globals()["flag1"] = 0
-globals()["flag2"] = 0
-globals()["flag3"] = 0
-globals()["flag4"] = 0
-globals()["flag5"] = 0
-globals()["flag6"] = 0
+# globals()["flag1"] = 0
+# globals()["flag2"] = 0
+# globals()["flag3"] = 0
+# globals()["flag4"] = 0
+# globals()["flag5"] = 0
+# globals()["flag6"] = 0
 
-try :
-    Can = can_Bus( app_name='CANalyzer', channel='can0', bitrate=125000, Debug=0, bustype = 'socketcan')
+# try :
+#     Can = can_Bus( app_name='CANalyzer', channel='can0', bitrate=125000, Debug=0, bustype = 'socketcan')
 
-    for nom, details in liste_slave.items():
-        globals()[nom] = can_Com(Can)
+#     for nom, details in liste_slave.items():
+#         globals()[nom] = can_Com(Can)
         
-    def get_already_init():
-        already_Init = globals()["Broadcast"].list_Slaves_Already()
-        return {"len":len(already_Init),"already_Init":already_Init}
+#     def get_already_init():
+#         already_Init = globals()["Broadcast"].list_Slaves_Already()
+#         return {"len":len(already_Init),"already_Init":already_Init}
 
-    def new_slave():
-        temp = can_Com(Can)
-        discovery = (temp.discover())
+#     def new_slave():
+#         temp = can_Com(Can)
+#         discovery = (temp.discover())
 
-        if "error" not in discovery:
-            print("handshake : ", temp.handshake())
-            globals()[temp.full_Id] = temp
-            print("adrress_Alloc : ", temp.adrress_Alloc(int(liste_slave[temp.full_Id]["id"] , 16) )) # Utilisation de id_int comme argument pour adrress_Alloc
-            globals()[temp.full_Id] = temp
-            print("New_Slave Init")
-        del temp
-        queue.appendleft(get_already_init)
-
-
-    def get_status(nb_sl):
-        status = RPC3300.get_Edu_Status()
-        globals()["Json"]["RPC3300"].update({"status": status})
-        # print("RPC3300",globals()["Json"]["RPC3300"])
-
-        if status:
-            if 'state' in status and 3 in status['state']:
-                if globals()["flag4"]  == 0 :
-                    socketio.emit('crash_slave', {'name': 'RPC3300','id': liste_slave["RPC3300"]["id"],"type":"warning"})
-                    history_toast.append({'name': 'RPC3300','error': "Over current","type":"warning","timestamp":time.time()})
-                    #get_history_toasts()
-                    globals()["flag4"] = 1 
-            else :
-                globals()["flag4"] = 0
-            if "error" in status :
-                nb_sl-=1
-                if globals()["flag1"] == 0  :
-                    socketio.emit('lost_slave', {'name': 'RPC3300','id': liste_slave["RPC3300"]["id"],"type":"danger"})
-                    history_toast.append({'name': 'RPC3300','error': "Lru lost","type":"danger","timestamp":time.time()})
-                    #get_history_toasts()
-                    globals()["flag1"] = 1 
-            else :
-                globals()["flag1"] = 0
-
-        status = RPC3301.get_Edu_Status()
-        globals()["Json"]["RPC3301"].update({"status": status})
-        # print("RPC3301",RPC3301.id,status)
+#         if "error" not in discovery:
+#             print("handshake : ", temp.handshake())
+#             globals()[temp.full_Id] = temp
+#             print("adrress_Alloc : ", temp.adrress_Alloc(int(liste_slave[temp.full_Id]["id"] , 16) )) # Utilisation de id_int comme argument pour adrress_Alloc
+#             globals()[temp.full_Id] = temp
+#             print("New_Slave Init")
+#         del temp
+#         queue.appendleft(get_already_init)
 
 
-        if status:
-            if 'state' in status and 3 in status['state']:
-                if globals()["flag5"] == 0 :
-                    socketio.emit('crash_slave', {'name': 'RPC3301','id': liste_slave["RPC3301"]["id"],"type":"warning"})
-                    history_toast.append({'name': 'RPC3301','error': "Over current","type":"warning","timestamp":time.time()})
-                    #get_history_toasts()
-                    globals()["flag5"] = 1 
-            else :
-                globals()["flag5"] = 0
-            if "error" in status :
-                nb_sl-=1
-                if globals()["flag2"] == 0 :
-                    socketio.emit('lost_slave', {'name': 'RPC3301','id': liste_slave["RPC3301"]["id"],"type":"danger"})
-                    history_toast.append({'name': 'RPC3301','error': "Lru lost","type":"danger","timestamp":time.time()})
-                    #get_history_toasts()
-                    globals()["flag2"] = 1 
-            else :
-                globals()["flag2"] = 0
+#     def get_status(nb_sl):
+#         status = RPC3300.get_Edu_Status()
+#         globals()["Json"]["RPC3300"].update({"status": status})
+#         # print("RPC3300",globals()["Json"]["RPC3300"])
+
+#         if status:
+#             if 'state' in status and 3 in status['state']:
+#                 if globals()["flag4"]  == 0 :
+#                     socketio.emit('crash_slave', {'name': 'RPC3300','id': liste_slave["RPC3300"]["id"],"type":"warning"})
+#                     history_toast.append({'name': 'RPC3300','error': "Over current","type":"warning","timestamp":time.time()})
+#                     #get_history_toasts()
+#                     globals()["flag4"] = 1 
+#             else :
+#                 globals()["flag4"] = 0
+#             if "error" in status :
+#                 nb_sl-=1
+#                 if globals()["flag1"] == 0  :
+#                     socketio.emit('lost_slave', {'name': 'RPC3300','id': liste_slave["RPC3300"]["id"],"type":"danger"})
+#                     history_toast.append({'name': 'RPC3300','error': "Lru lost","type":"danger","timestamp":time.time()})
+#                     #get_history_toasts()
+#                     globals()["flag1"] = 1 
+#             else :
+#                 globals()["flag1"] = 0
+
+#         status = RPC3301.get_Edu_Status()
+#         globals()["Json"]["RPC3301"].update({"status": status})
+#         # print("RPC3301",RPC3301.id,status)
+
+
+#         if status:
+#             if 'state' in status and 3 in status['state']:
+#                 if globals()["flag5"] == 0 :
+#                     socketio.emit('crash_slave', {'name': 'RPC3301','id': liste_slave["RPC3301"]["id"],"type":"warning"})
+#                     history_toast.append({'name': 'RPC3301','error': "Over current","type":"warning","timestamp":time.time()})
+#                     #get_history_toasts()
+#                     globals()["flag5"] = 1 
+#             else :
+#                 globals()["flag5"] = 0
+#             if "error" in status :
+#                 nb_sl-=1
+#                 if globals()["flag2"] == 0 :
+#                     socketio.emit('lost_slave', {'name': 'RPC3301','id': liste_slave["RPC3301"]["id"],"type":"danger"})
+#                     history_toast.append({'name': 'RPC3301','error': "Lru lost","type":"danger","timestamp":time.time()})
+#                     #get_history_toasts()
+#                     globals()["flag2"] = 1 
+#             else :
+#                 globals()["flag2"] = 0
 
                 
 
-        status = P4C1790.get_Ldu_Status()
-        globals()["Json"]["P4C1790"].update({"status": status})
+#         status = P4C1790.get_Ldu_Status()
+#         globals()["Json"]["P4C1790"].update({"status": status})
         
-        if status:
-            if 'state' in status and 3 in status['state']:
-                if globals()["flag6"] == 0  :
-                    socketio.emit('crash_slave', {'name': 'P4C1790','id': liste_slave["P4C1790"]["id"],"type":"warning"})
-                    history_toast.append({'name': 'P4C1790','error': "Over current","type":"warning","timestamp":time.time()})
-                    #get_history_toasts()
-                    globals()["flag6"] = 1 
-            else :
-                globals()["flag6"] = 0
-            if "error" in status :
-                nb_sl-=1
-                if globals()["flag3"] == 0 :
-                    socketio.emit('lost_slave', {'name': 'P4C1790','id': liste_slave["P4C1790"]["id"],"type":"danger"})
-                    history_toast.append({'name': 'P4C1790','error': "Lru lost","type":"danger","timestamp":time.time()})
-                    #get_history_toasts()
-                    globals()["flag3"] = 1 
-            else :
-                globals()["flag3"] = 0
+#         if status:
+#             if 'state' in status and 3 in status['state']:
+#                 if globals()["flag6"] == 0  :
+#                     socketio.emit('crash_slave', {'name': 'P4C1790','id': liste_slave["P4C1790"]["id"],"type":"warning"})
+#                     history_toast.append({'name': 'P4C1790','error': "Over current","type":"warning","timestamp":time.time()})
+#                     #get_history_toasts()
+#                     globals()["flag6"] = 1 
+#             else :
+#                 globals()["flag6"] = 0
+#             if "error" in status :
+#                 nb_sl-=1
+#                 if globals()["flag3"] == 0 :
+#                     socketio.emit('lost_slave', {'name': 'P4C1790','id': liste_slave["P4C1790"]["id"],"type":"danger"})
+#                     history_toast.append({'name': 'P4C1790','error': "Lru lost","type":"danger","timestamp":time.time()})
+#                     #get_history_toasts()
+#                     globals()["flag3"] = 1 
+#             else :
+#                 globals()["flag3"] = 0
 
                 
 
-        if nb_sl < len(liste_slave)-2 :
+#         if nb_sl < len(liste_slave)-2 :
 
-            if globals()["i"] == 0:
-                globals()["temp"] = can_Com(Can)
-                discovery = (globals()["temp"].discover())
-                if "error" not in discovery:
-                    globals()["i"]+=1
-                else:
-                    globals()["i"]=0
-            elif globals()["i"] == 1:
-                globals()["temp"].handshake()
-                globals()["i"]=globals()["i"]+1
-            elif globals()["i"] == 2:
-                globals()["temp"].adrress_Alloc(int(liste_slave[globals()["temp"].full_Id]["id"] , 16) )
-                globals()[globals()["temp"].full_Id] = globals()["temp"]
-                print("New_Slave Init")
-                socketio.emit('new_slave', {'name': globals()["temp"].full_Id,'id': liste_slave[globals()["temp"].full_Id]["id"],"type":"success"})
-                history_toast.append({'name': globals()["temp"].full_Id,'success': "Lru connected","type":"success","timestamp":time.time()})
-                #get_history_toasts()
+#             if globals()["i"] == 0:
+#                 globals()["temp"] = can_Com(Can)
+#                 discovery = (globals()["temp"].discover())
+#                 if "error" not in discovery:
+#                     globals()["i"]+=1
+#                 else:
+#                     globals()["i"]=0
+#             elif globals()["i"] == 1:
+#                 globals()["temp"].handshake()
+#                 globals()["i"]=globals()["i"]+1
+#             elif globals()["i"] == 2:
+#                 globals()["temp"].adrress_Alloc(int(liste_slave[globals()["temp"].full_Id]["id"] , 16) )
+#                 globals()[globals()["temp"].full_Id] = globals()["temp"]
+#                 print("New_Slave Init")
+#                 socketio.emit('new_slave', {'name': globals()["temp"].full_Id,'id': liste_slave[globals()["temp"].full_Id]["id"],"type":"success"})
+#                 history_toast.append({'name': globals()["temp"].full_Id,'success': "Lru connected","type":"success","timestamp":time.time()})
+#                 #get_history_toasts()
 
 
-                globals()["i"]=globals()["i"]+1
-            elif globals()["i"] == 3:
-                get_already_init()
-                globals()["i"]=0
-                del globals()["temp"]
-                globals()["i"]=0
+#                 globals()["i"]=globals()["i"]+1
+#             elif globals()["i"] == 3:
+#                 get_already_init()
+#                 globals()["i"]=0
+#                 del globals()["temp"]
+#                 globals()["i"]=0
         
 
 
-    temp = can_Com(Can)
+#     temp = can_Com(Can)
 
 
-    new_Slave = globals()["Broadcast"].list_Slaves_New()
-    print("list_Slaves_New : ", new_Slave)
-    time.sleep(0.1)
-    #list_Slaves_Already :  [{'id': '0x0A', 'name': 'RPC', 'number': '3301', 'lru': 'RPC3301'}, {'id': '0x0B', 'name': 'RPC', 'number': '3300', 'lru': 'RPC3300'}, {'id': '0x0C', 'name': 'P4C', 'number': '1790', 'lru': 'P4C1790'}]
-    already_Init = globals()["Broadcast"].list_Slaves_Already()
+#     new_Slave = globals()["Broadcast"].list_Slaves_New()
+#     print("list_Slaves_New : ", new_Slave)
+#     time.sleep(0.1)
+#     #list_Slaves_Already :  [{'id': '0x0A', 'name': 'RPC', 'number': '3301', 'lru': 'RPC3301'}, {'id': '0x0B', 'name': 'RPC', 'number': '3300', 'lru': 'RPC3300'}, {'id': '0x0C', 'name': 'P4C', 'number': '1790', 'lru': 'P4C1790'}]
+#     already_Init = globals()["Broadcast"].list_Slaves_Already()
    
-    for slave in already_Init: 
-        try:
+#     for slave in already_Init: 
+#         try:
 
-            history_toast.append({
-                "name": slave["name"] + slave["number"],
-                'success': "Lru connected",
-                "type": "success",
-                "timestamp": time.time()
-            })
-        except (KeyError, TypeError):
-            print(f"Error processing slave: {slave}")
-
-
-    print("list_Slaves_Already : ", already_Init)
-
-    if "error" not in new_Slave[0]:
-        for slave in new_Slave:
-            new_slave()
-            time.sleep(1)
-    if "error" not in already_Init[0]:
-        for slave in already_Init:
-            time.sleep(1)
-            if slave["id"] != liste_slave[slave["lru"]]["id"] :
-                print(f"Id of {slave['lru']} Wrong. Real :{liste_slave[slave['lru']]['id']}, attempt : {slave['id']}")
-                # sys.exit()
-            else:
-                globals()[slave['lru']].name = slave['lru']
-                globals()[slave['lru']].set_id(int(slave["id"], 16))
-                globals()[slave['lru']].message.handshake_status = 3
+#             history_toast.append({
+#                 "name": slave["name"] + slave["number"],
+#                 'success': "Lru connected",
+#                 "type": "success",
+#                 "timestamp": time.time()
+#             })
+#         except (KeyError, TypeError):
+#             print(f"Error processing slave: {slave}")
 
 
-    def main():
-        nb_sl = len(already_Init)
-        i=0
-        print("start main")
-        if RPC3300.id == 0x0 :
-            RPC3300.set_id(liste_slave["RPC3300"]["id"])
-        if RPC3301.id == 0x0 :
-            RPC3301.set_id(liste_slave["RPC3301"]["id"])
-        if P4C1790.id == 0x0 :
-            P4C1790.set_id(liste_slave["P4C1790"]["id"])
+#     print("list_Slaves_Already : ", already_Init)
 
-        while True:
-            # json_data ={}
-            globals()["Json"]["timestamp"] = time.time()
-            queue.append(lambda: get_status(nb_sl))
-            queue.append(lambda: globals()["Json"]["RPC3300"].update({"temperature": RPC3300.get_Temperature()}))
-            queue.append(lambda: get_status(nb_sl))
-            queue.append(lambda: globals()["Json"]["RPC3301"].update({"temperature": RPC3301.get_Temperature()}))
-            queue.append(lambda: get_status(nb_sl))
-            queue.append(lambda: globals()["Json"]["P4C1790"].update({"temperature": P4C1790.get_Temperature()}))
-            queue.append(lambda: get_status(nb_sl))
-            queue.append(lambda: globals()["Json"]["RPC3300"].update({"current": RPC3300.get_Current()}))
-            queue.append(lambda: get_status(nb_sl))
-            queue.append(lambda: globals()["Json"]["RPC3301"].update({"current": RPC3301.get_Current()}))
-            queue.append(lambda: get_status(nb_sl))
-            queue.append(lambda: globals()["Json"]["P4C1790"].update({"current": P4C1790.get_Current()}))
-            queue.append(lambda: get_status(nb_sl))
-            queue.append(lambda: globals()["Json"]["RPC3300"].update({"position": RPC3300.get_Position()}))
-            queue.append(lambda: get_status(nb_sl))
-            queue.append(lambda: globals()["Json"]["RPC3301"].update({"position": RPC3301.get_Position()}))
-            queue.append(lambda: get_status(nb_sl))
-            queue.append(lambda: globals()["Json"]["P4C1790"].update({"pression": P4C1790.get_Ldu_Unity_PresUI()}))
-            queue.append(lambda: get_status(nb_sl))
+#     if "error" not in new_Slave[0]:
+#         for slave in new_Slave:
+#             new_slave()
+#             time.sleep(1)
+#     if "error" not in already_Init[0]:
+#         for slave in already_Init:
+#             time.sleep(1)
+#             if slave["id"] != liste_slave[slave["lru"]]["id"] :
+#                 print(f"Id of {slave['lru']} Wrong. Real :{liste_slave[slave['lru']]['id']}, attempt : {slave['id']}")
+#                 # sys.exit()
+#             else:
+#                 globals()[slave['lru']].name = slave['lru']
+#                 globals()[slave['lru']].set_id(int(slave["id"], 16))
+#                 globals()[slave['lru']].message.handshake_status = 3
 
 
-            i=i+1
-            if i >= 35:  # À raison de 34 valeurs secondes max
-                if len(globals()["database"]) > 300:
-                    globals()["database"].pop(0)
-                # Créer une nouvelle instance de l'objet JSON en le clonant
-                new_json = copy.deepcopy(globals()["Json"])
-                globals()["database"].append(new_json)
-                socketio.emit('database', {'data': globals()["database"]})
+#     def main():
+#         nb_sl = len(already_Init)
+#         i=0
+#         print("start main")
+#         if RPC3300.id == 0x0 :
+#             RPC3300.set_id(liste_slave["RPC3300"]["id"])
+#         if RPC3301.id == 0x0 :
+#             RPC3301.set_id(liste_slave["RPC3301"]["id"])
+#         if P4C1790.id == 0x0 :
+#             P4C1790.set_id(liste_slave["P4C1790"]["id"])
 
-                i=0
+#         while True:
+#             # json_data ={}
+#             globals()["Json"]["timestamp"] = time.time()
+#             queue.append(lambda: get_status(nb_sl))
+#             queue.append(lambda: globals()["Json"]["RPC3300"].update({"temperature": RPC3300.get_Temperature()}))
+#             queue.append(lambda: get_status(nb_sl))
+#             queue.append(lambda: globals()["Json"]["RPC3301"].update({"temperature": RPC3301.get_Temperature()}))
+#             queue.append(lambda: get_status(nb_sl))
+#             queue.append(lambda: globals()["Json"]["P4C1790"].update({"temperature": P4C1790.get_Temperature()}))
+#             queue.append(lambda: get_status(nb_sl))
+#             queue.append(lambda: globals()["Json"]["RPC3300"].update({"current": RPC3300.get_Current()}))
+#             queue.append(lambda: get_status(nb_sl))
+#             queue.append(lambda: globals()["Json"]["RPC3301"].update({"current": RPC3301.get_Current()}))
+#             queue.append(lambda: get_status(nb_sl))
+#             queue.append(lambda: globals()["Json"]["P4C1790"].update({"current": P4C1790.get_Current()}))
+#             queue.append(lambda: get_status(nb_sl))
+#             queue.append(lambda: globals()["Json"]["RPC3300"].update({"position": RPC3300.get_Position()}))
+#             queue.append(lambda: get_status(nb_sl))
+#             queue.append(lambda: globals()["Json"]["RPC3301"].update({"position": RPC3301.get_Position()}))
+#             queue.append(lambda: get_status(nb_sl))
+#             queue.append(lambda: globals()["Json"]["P4C1790"].update({"pression": P4C1790.get_Ldu_Unity_PresUI()}))
+#             queue.append(lambda: get_status(nb_sl))
 
-            if i % 10 == 0:
-                socketio.emit('mydata', {'data': globals()["Json"]})
+
+#             i=i+1
+#             if i >= 35:  # À raison de 34 valeurs secondes max
+#                 if len(globals()["database"]) > 300:
+#                     globals()["database"].pop(0)
+#                 # Créer une nouvelle instance de l'objet JSON en le clonant
+#                 new_json = copy.deepcopy(globals()["Json"])
+#                 globals()["database"].append(new_json)
+#                 socketio.emit('database', {'data': globals()["database"]})
+
+#                 i=0
+
+#             if i % 10 == 0:
+#                 socketio.emit('mydata', {'data': globals()["Json"]})
 
 
-            if queue:
-                func = queue.popleft()
-                status = func() 
-                if status:
-                    if "len" in status:
-                        nb_sl=len(status["already_Init"])
-                # time.sleep(0.5) 
+#             if queue:
+#                 func = queue.popleft()
+#                 status = func() 
+#                 if status:
+#                     if "len" in status:
+#                         nb_sl=len(status["already_Init"])
+#                 # time.sleep(0.5) 
 
-    #          
+#     #          
 
-    main_thread = threading.Thread(target=main)
-    main_thread.start()
-
-
+#     main_thread = threading.Thread(target=main)
+#     main_thread.start()
 
 
-    def signal_handler(sig, frame):
-        print("Arrêt de l'exécution du script...")
-        os.system('sudo ifconfig can0 down')
-        sys.exit(0)
-    signal.signal(signal.SIGINT, signal_handler)
 
-except Exception as e:
-    print("Can non pris en charge :",e)
-    # python = sys.executable
-    # os.execl(python, python, *sys.argv)
 
-#====================================
+#     def signal_handler(sig, frame):
+#         print("Arrêt de l'exécution du script...")
+#         os.system('sudo ifconfig can0 down')
+#         sys.exit(0)
+#     signal.signal(signal.SIGINT, signal_handler)
+
+# except Exception as e:
+#     print("Can non pris en charge :",e)
+#     # python = sys.executable
+#     # os.execl(python, python, *sys.argv)
+
+# #====================================
 
 
 
