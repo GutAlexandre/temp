@@ -1,0 +1,255 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+    <title>Flask-SocketIO Test</title>
+    <script src="{{url_for('static', filename='jquery-3.7.1.js')}}"></script>
+    <script src="{{url_for('static', filename='socket.io-3.0.4.js')}}"></script>
+    <script type="text/javascript" charset="utf-8">
+        $(document).ready(function() {
+            // Connect to the Socket.IO server.
+            // The connection URL has the following format, relative to the current page:
+            //     http[s]://<domain>:<port>[/<namespace>]
+            var socket = io();
+
+            // Event handler for new connections.
+            // The callback function is invoked when a connection with the
+            // server is established.
+            socket.on('connect', function() {
+                socket.emit('my_event', {data: 'I\'m connected!'});
+            });
+
+            // Event handler for server sent data.
+            // The callback function is invoked whenever the server emits data
+            // to the client. The data is then displayed in the "Received"
+            // section of the page.
+            socket.on('my_response', function(msg, cb) {
+                $('#log').append('<br>' + $('<div/>').text('Received #' + msg.count + ': ' + msg.data).html());
+                if (cb)
+                    cb();
+            });
+
+            socket.on('mydata', function(msg) {
+                console.log(msg)
+            });
+            // Interval function that tests message latency by sending a "ping"
+            // message. The server then responds with a "pong" message and the
+            // round trip time is measured.
+            var ping_pong_times = [];
+            var start_time;
+            window.setInterval(function() {
+                start_time = (new Date).getTime();
+                $('#transport').text(socket.io.engine.transport.name);
+                socket.emit('my_ping');
+            }, 1000);
+
+            // Handler for the "pong" message. When the pong is received, the
+            // time from the ping is stored, and the average of the last 30
+            // samples is average and displayed.
+            socket.on('my_pong', function() {
+                var latency = (new Date).getTime() - start_time;
+                ping_pong_times.push(latency);
+                ping_pong_times = ping_pong_times.slice(-30); // keep last 30 samples
+                var sum = 0;
+                for (var i = 0; i < ping_pong_times.length; i++)
+                    sum += ping_pong_times[i];
+                $('#ping-pong').text(Math.round(10 * sum / ping_pong_times.length) / 10);
+            });
+
+            // Handlers for the different forms in the page.
+            // These accept data from the user and send it to the server in a
+            // variety of ways
+            $('form#emit').submit(function(event) {
+                socket.emit('my_event', {data: $('#emit_data').val()});
+                return false;
+            });
+            $('form#broadcast').submit(function(event) {
+                socket.emit('my_broadcast_event', {data: $('#broadcast_data').val()});
+                return false;
+            });
+            $('form#join').submit(function(event) {
+                socket.emit('join', {room: $('#join_room').val()});
+                return false;
+            });
+            $('form#leave').submit(function(event) {
+                socket.emit('leave', {room: $('#leave_room').val()});
+                return false;
+            });
+            $('form#send_room').submit(function(event) {
+                socket.emit('my_room_event', {room: $('#room_name').val(), data: $('#room_data').val()});
+                return false;
+            });
+            $('form#close').submit(function(event) {
+                socket.emit('close_room', {room: $('#close_room').val()});
+                return false;
+            });
+            $('form#disconnect').submit(function(event) {
+                socket.emit('disconnect_request');
+                return false;
+            });
+            
+            const canvas = document.getElementById('colorCanvas');
+            const ctx = canvas.getContext('2d');
+
+            for (let x = 0; x < canvas.width; x++) {
+                const hue = x / canvas.width * 360;
+                for (let y = 0; y < canvas.height; y++) {
+                    const luminosity = 100 - (y / canvas.height * 100);
+                    ctx.fillStyle = `hsl(${hue}, 100%, ${luminosity}%)`;
+                    ctx.fillRect(x, y, 1, 1);
+                }
+            }
+
+            canvas.addEventListener('click', function(event) {
+                const x = event.offsetX;
+                const y = event.offsetY;
+                const imageData = ctx.getImageData(x, y, 1, 1);
+                const pixel = imageData.data;
+
+                socket.emit('new_color', {data: pixel});
+
+                const rgb = `rgb(${pixel[0]}, ${pixel[1]}, ${pixel[2]})`;
+                document.body.style.backgroundColor = rgb;
+            });
+        });
+    </script>
+    <style>
+    canvas {
+        border-radius: 50%; /* Adjust the radius to your preference */
+        border: none; /* Remove the border */
+    }
+    </style>
+</head>
+<body>
+    <h1>Flask-SocketIO Test</h1>
+    <p>
+      Async mode is: <b>{{ async_mode }}</b><br>
+      Current transport is: <b><span id="transport"></span></b><br>
+      Average ping/pong latency: <b><span id="ping-pong"></span>ms</b>
+    </p>
+    <h2>Send:</h2>
+    <form id="emit" method="POST" action='#'>
+        <input type="text" name="emit_data" id="emit_data" placeholder="Message">
+        <input type="submit" value="Echo">
+    </form>
+    <form id="broadcast" method="POST" action='#'>
+        <input type="text" name="broadcast_data" id="broadcast_data" placeholder="Message">
+        <input type="submit" value="Broadcast">
+    </form>
+    <form id="join" method="POST" action='#'>
+        <input type="text" name="join_room" id="join_room" placeholder="Room Name">
+        <input type="submit" value="Join Room">
+    </form>
+    <form id="leave" method="POST" action='#'>
+        <input type="text" name="leave_room" id="leave_room" placeholder="Room Name">
+        <input type="submit" value="Leave Room">
+    </form>
+    <form id="send_room" method="POST" action='#'>
+        <input type="text" name="room_name" id="room_name" placeholder="Room Name">
+        <input type="text" name="room_data" id="room_data" placeholder="Message">
+        <input type="submit" value="Send to Room">
+    </form>
+    <form id="close" method="POST" action="#">
+        <input type="text" name="close_room" id="close_room" placeholder="Room Name">
+        <input type="submit" value="Close Room">
+    </form>
+    <form id="disconnect" method="POST" action="#">
+        <input type="submit" value="Disconnect">
+    </form>
+    <h2>Receive:</h2>
+    <div id="log"></div>
+
+    <canvas id="colorCanvas" width="300" height="300"></canvas>
+
+    <script>
+        
+    </script>
+
+</body>
+</html>
+
+<!-- <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Maintenance</title>
+    <style>
+        body {
+            font-family: Rubik, sans-serif;
+            text-align: center;
+            margin: 20px;
+            background-image: url("{{ url_for('static', filename= 'background.png') }}");
+            background-size: cover; /* Cover the entire background */
+            background-attachment: fixed; /* Fixed background during scrolling */
+            background-color: #e0e0e0; /* Fallback color if the image is not available */
+            overflow: hidden; /* Hide the page scrollbar */
+        }
+
+        h1 {
+            color: #c0e0fb;
+            position: fixed;
+            width: calc(100% - 60px);
+            top: 0;
+            background-color: #00276f; /* Set a background color for better visibility */
+            padding: 10px;
+            z-index: 1; /* Ensure the title is above other elements */
+        }
+
+        #maintenanceValuesContainer {
+            margin-top: 100px; /* Adjust margin-top to account for the fixed title height */
+            max-height: calc(100vh - 120px); /* Limit the max height to the viewport height minus 70px */
+            overflow-y: auto; /* Add a vertical scrollbar only for maintenance data */
+        }
+
+        #maintenanceValues {
+            text-align: left;
+
+        }
+
+        #maintenanceValues p {
+            padding: 10px;
+            margin: 0;
+            background-color: #00559d;
+/*            border-bottom: 1px solid #ddd;*/
+            color: #c0e0fb;
+            margin-bottom: 5px; /* Add a small gap (adjust as needed) */
+        }
+
+        #maintenanceValues p:nth-child(2n) {
+            background-color: #277cc3;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>MAINTENANCE DATA</h1>
+
+    <div id="maintenanceValuesContainer">
+    <div id="maintenanceValues"></div>
+   </div>
+    <script>
+        function generateRandomMaintenanceValue() {
+            return Math.floor(Math.random() * 100) + 1;
+        }
+
+        var maintenanceArray = [];
+        for (var i = 0; i < 20; i++) {
+            maintenanceArray.push(generateRandomMaintenanceValue());
+        }
+
+        var maintenanceDiv = document.getElementById('maintenanceValues');
+        for (var i = 0; i < maintenanceArray.length; i++) {
+            var maintenanceValue = maintenanceArray[i];
+            var pElement = document.createElement('p');
+            pElement.textContent = 'Maintenance ' + (i + 1) + ': ' + maintenanceValue;
+            maintenanceDiv.appendChild(pElement);
+        }
+
+        // window.onload = function() {
+        //     window.scrollTo(0, 0);
+        // };
+    </script>
+
+</body>
+</html>
+ -->

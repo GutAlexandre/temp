@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FRIDGE TEMPERATURE HISTORY</title>
+    <!-- Include Chart.js library -->
+    <!-- <script src="https://cdn.jsdelivr.net/npm/chart.js"></script> -->
+    <script src="{{url_for('static', filename='chart.js')}}"></script>
+
+    <script src="{{url_for('static', filename='socket.io-3.0.4.js')}}"></script>
+    <style>
+        body {
+            font-family: 'Rubik', sans-serif;
+            background-color: #f2f2f2;
+            padding: 20px;
+        }
+
+        h1 {
+            text-align: center;
+            background-color: #333;
+            color: white;
+            padding: 20px 0;
+            margin: 0;
+        }
+
+        canvas {
+            max-width: 80%;
+            margin: 20px auto;
+        }
+    </style>
+</head>
+<body>
+
+    <h1 style="font_size: 30px;">FRIDGE TEMPERATURE HISTORY</h1>
+
+    <!-- Create a canvas element to render the chart -->
+    <div id="graphDiv">
+        <canvas id="myChart"></canvas>
+    </div>
+
+    <div id="noGraphDiv" style="display: none;">
+        <h2>Voila voila</h2>
+    </div>
+
+
+    <button id="toggleButton">Toggle</button>
+    <button id="addButton">Add Data</button>
+
+    <script>
+        var socket = io();
+
+
+        function toggleData() {
+            const defaultData = document.getElementById('graphDiv');
+            const alternativeData = document.getElementById('noGraphDiv');
+            const toggleDataBtn = document.getElementById('toggleButton');
+
+            // Toggle between data sets by changing their display property
+            if (defaultData.style.display === 'block') {
+                defaultData.style.display = 'none';
+                alternativeData.style.display = 'block';
+                toggleDataBtn.textContent = 'Show graph';
+            } else {
+                defaultData.style.display = 'block';
+                alternativeData.style.display = 'none';
+                toggleDataBtn.textContent = 'Show no graph';
+            }
+        }
+
+        // Attach the toggleData function to the button click event
+        document.getElementById('toggleButton').addEventListener('click', toggleData);
+
+        // Sample data (you can replace this with your dynamic data)
+        const data = [12, 19, -3, 5, 2, 3];
+        const labels = Array.from({ length: data.length }, (_, index) => (index).toString());
+        count = data.length;
+
+
+        // Create a chart using Chart.js
+        const ctx = document.getElementById('myChart').getContext('2d');
+        const myChart = new Chart(ctx, {
+            type: 'line', // You can change the chart type (e.g., 'bar', 'radar', etc.)
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Temperature Log',
+                    data: data,
+                    borderColor: 'rgba(75, 192, 192, 1)',
+                    borderWidth: 2,
+                    fill: false
+                }]
+            },
+            options: {
+                animation: false,
+                responsive: true,
+                // maintainAspectRatio: false,
+                scales: {
+                    x: {
+                        type: 'category',
+                        // labels: labels
+                    },
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+
+
+        function addData() {
+            count++;
+            labels.push(count);
+            d = (Math.random() * 25) -5;
+            data.push(d);
+            socket.emit('new_data', {data: d});
+            if (data.length > 30)
+            {
+                labels.shift();
+                data.shift();
+            }
+            myChart.update();
+        }
+
+        document.getElementById('addButton').addEventListener('click', addData);
+    </script>
+
+</body>
+</html>

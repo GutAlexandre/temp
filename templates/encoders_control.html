@@ -1,0 +1,1790 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+
+    <title>IAMS</title>
+    <style>
+        @font-face {
+            font-family: 'Rubik';
+            src: url("{{url_for('static', filename='css/multiple.css')}}") format('truetype');
+            font-weight: 100;
+            font-style: italic;
+        }
+
+
+
+        body {
+            background: linear-gradient(to top right, #1b2a28, #7a9f99);
+            margin: 0;
+            border: 0;
+            padding: 0;
+            height: 100vh;
+            position: relative;
+            overflow: hidden;
+            font-family: 'Rubik', sans-serif;
+            font-size: 18px;
+        }
+
+        #bckgrnd {
+            position: absolute;
+            top: 0px;
+            left: 0px;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+            visibility: visible;
+        }
+
+        /*canvas {
+                border-radius: 2% 20% 20% 20%;
+                border: none;
+            }*/
+
+        /*.divCanvasColorSel {
+                animation: 1s linear 1s infinite alternate slidein;
+            }*/
+
+        @keyframes canvasOut {
+            from {
+                height: 0%;
+            }
+
+            to {
+                height: 24.5%;
+            }
+        }
+
+        @keyframes canvasIn {
+            from {
+                height: 25%;
+            }
+
+            to {
+                height: 0%;
+            }
+        }
+
+
+        @keyframes lightBackgroundSwipeToOn {
+            from {
+                left: 0px;
+            }
+
+            to {
+                left: 70px;
+            }
+        }
+
+        @keyframes lightBackgroundSwipeToOff {
+            from {
+                translate: 0, 0;
+            }
+
+            to {
+                translate: 70, 0;
+            }
+        }
+
+        @keyframes lightSwipeToOn {
+            from {
+                left: 1676.922px;
+            }
+
+            to {
+                left: 1762.57px;
+            }
+        }
+
+        @keyframes lightSwipeToOff {
+            from {
+                left: 1762.57px;
+            }
+
+            to {
+                left: 1676.922px;
+            }
+        }
+
+        #ledColorCenter {
+            stop-color: #FF000000;
+            stop-opacity: 1;
+        }
+
+        #ledColorOutside {
+            stop-color: #0000FF00;
+            stop-opacity: 1;
+        }
+
+        #ledColorBright {
+            stop-color: #FF000000;
+            stop-opacity: 1;
+        }
+
+        #ledColorDark {
+            stop-color: #0000FF00;
+            stop-opacity: 1;
+        }
+
+        /*.divCanvasColorSel {
+                height: 100%;
+            }*/
+
+        #outOfCanvas {
+            position: absolute;
+            top: 0px;
+            left: 0px;
+            width: 100%;
+            height: 100%;
+            visibility: hidden;
+        }
+
+        p,
+        label {
+            font:
+                1rem 'Fira Sans',
+                sans-serif;
+        }
+
+        #colorCanvas {
+            border-radius: 2% 20% 20% 20%;
+            border: none;
+            visibility: hidden;
+            position: absolute;
+            top: 80px;
+            left: 80px;
+            /*                height: 30%;*/
+            z-index: 2;
+        }
+
+        .colorSel-image {
+            top: 80px;
+            left: 80px;
+            height: 120px;
+            position: absolute;
+        }
+
+        .colorSel-image-v2 {
+            top: 80px;
+            left: 80px;
+            height: 70px;
+            position: absolute;
+            z-index: 2;
+        }
+
+        .seat-image-shadow {
+            position: absolute;
+            top: 300px;
+            left: 790px;
+            width: 400px;
+            z-index: 3;
+        }
+
+        .seat-image {
+            position: absolute;
+            top: 320px;
+            left: 760px;
+            width: 400px;
+            z-index: 3;
+        }
+
+        .light-switch {
+            position: absolute;
+            top: 70px;
+            left: 1665px;
+            width: 180px;
+            z-index: 1;
+        }
+
+        .seat-icon {
+            position: absolute;
+            top: 540px;
+            left: 80px;
+            width: 80px;
+            z-index: 1;
+        }
+
+        #readingTranslation {
+            z-index: 8;
+            position: absolute;
+        }
+
+        #lightSwitchOn {
+            visibility: hidden;
+        }
+
+        #lightSwitchHandle {
+            position: absolute;
+            top: 81.8px;
+            left: 1676.922px;
+            width: 70.044px;
+            z-index: 3;
+        }
+
+        #handleToMoveRot1,
+        #handleToMoveRot2,
+        #handleToMovePn {
+            position: absolute;
+            top: 200px;
+            left: 1500px;
+            width: 70px;
+            z-index: 3;
+            visibility: hidden;
+        }
+
+        .fridge-command {
+            position: absolute;
+            top: 1080px;
+            left: 1605px;
+            height: 70px;
+            z-index: 3;
+        }
+
+        .heat-command {
+            position: absolute;
+            top: 1080px;
+            left: 115px;
+            height: 70px;
+            z-index: 3;
+        }
+
+        #froidMoins {
+            position: absolute;
+            top: 1080px;
+            left: 1570px;
+            width: 70px;
+            z-index: 3;
+        }
+
+        #commandFroid {
+            position: absolute;
+            color: white;
+            top: 1070px;
+            left: 1650px;
+            width: 70px;
+            z-index: 3;
+        }
+
+        #commandFroidDeg {
+            position: absolute;
+            color: white;
+            top: 1082px;
+            left: 1742px;
+            width: 70px;
+            z-index: 3;
+            font-size: 28px;
+        }
+
+        #actualFroid {
+            position: absolute;
+            color: #879EE4;
+            /*            #aaaaaa;*/
+            top: 950px;
+            left: 1620px;
+            width: 70px;
+            z-index: 3;
+            font-size: 55px;
+        }
+
+        #froidPlus {
+            position: absolute;
+            top: 1080px;
+            left: 1780px;
+            width: 70px;
+            z-index: 3;
+        }
+
+        #canFullLeft,
+        #canEmptyLeft {
+            position: absolute;
+            top: 850px;
+            left: 1600px;
+            width: 70px;
+            z-index: 2;
+        }
+
+        #canFullRight,
+        #canEmptyRight {
+            position: absolute;
+            top: 850px;
+            left: 1750px;
+            width: 70px;
+            z-index: 2;
+        }
+
+
+        #chaudMoins {
+            position: absolute;
+            top: 1080px;
+            left: 70px;
+            width: 70px;
+            z-index: 3;
+        }
+
+        #commandChaud {
+            position: absolute;
+            color: white;
+            top: 1070px;
+            left: 155px;
+            width: 70px;
+            z-index: 3;
+        }
+
+        #commandChaudDeg {
+            position: absolute;
+            color: white;
+            top: 1082px;
+            left: 245px;
+            width: 70px;
+            z-index: 3;
+            font-size: 28px;
+        }
+
+
+        #actualChaud {
+            position: absolute;
+            color: #c38787;
+            top: 950px;
+            left: 130px;
+            width: 70px;
+            z-index: 3;
+            font-size: 55px;
+        }
+
+        #chaudPlus {
+            position: absolute;
+            top: 1080px;
+            left: 280px;
+            width: 70px;
+            z-index: 3;
+        }
+
+
+
+        #preset1, #preset1_on {
+            position: absolute;
+            top: 735px;
+            left: 230px;
+            height: 70px;
+            z-index: 3;
+        }
+
+        #preset2, #preset2_on {
+            position: absolute;
+            top: 395px;
+            left: 230px;
+            height: 70px;
+            z-index: 3;
+        }
+
+        #preset3, #preset3_on {
+            position: absolute;
+            top: 565px;
+            left: 190px;
+            height: 70px;
+            z-index: 3;
+        }
+
+        #handleRot2Plus {
+            position: absolute;
+            top: 959.5px;
+            left: 1256px;
+            width: 70px;
+            z-index: 3;
+        }
+
+        #handleRot2Moins {
+            position: absolute;
+            top: 959.5px;
+            left: 594px;
+            width: 70px;
+            z-index: 3;
+        }
+
+        #handleRot1Plus {
+            position: absolute;
+            top: 170.5px;
+            left: 1256px;
+            width: 70px;
+            z-index: 3;
+        }
+
+        #handleRot1Moins {
+            position: absolute;
+            /*top: 822.5px;
+            left: 1371px;*/
+            top: 170.5px;
+            left: 594px;
+            width: 70px;
+            z-index: 3;
+        }
+
+        #pnBackground {
+            position: absolute;
+            top: 440px;
+            left: 1558.6px;
+            width: 281.4px;
+            z-index: 1;
+        }
+
+
+        #pnHandle {
+            position: absolute;
+            top: 551.8px;
+            left: 1664.322px;
+            width: 70.044px;
+            z-index: 3;
+        }
+
+        #sliderRot1 {
+            z-index: 2;
+        }
+
+        #sliderRot2 {
+            z-index: 2;
+        }
+
+        #sliderPn1 {
+            z-index: 2;
+        }
+
+
+        .groupToMask {
+            position: absolute;
+        }
+
+        #lightBackgroundOffset1 {
+            offset: 100%;
+        }
+
+        /*#groupToMask {
+                clip-path: path('M 0 600 L 0,10 A 600,610 0,0,1 600,610 z');
+            }*/
+
+        .slider-drawings {
+            width: 100%;
+            height: 100%;
+            padding: 0;
+            stroke-width: 2px;
+            z-index: 1;
+            position: absolute;
+        }
+
+        .svg-in-the-back {
+            width: 100%;
+            height: 100%;
+            padding: 0;
+            stroke-width: 2px;
+            z-index: 0;
+            visibility: visible;
+            position: absolute;
+        }
+    </style>
+</head>
+
+<body onselectstart="return false" oncontextmenu="return false" ondragstart="return false"
+    onMouseOver="window.status='..message perso .. '; return true;">
+
+    <img id="bckgrnd" src="{{ url_for('static', filename='background_with_hole.svg') }}">
+
+    <div id="outOfCanvas">
+    </div>
+
+    <!-- <img id="colorSelImage" class="colorSel-image" src="{{ url_for('static', filename='icon_palette.png') }}"> -->
+    <img id="colorSelImage" class="colorSel-image-v2" src="{{ url_for('static', filename='color_palette_v2.png') }}">
+
+
+    <div class="divCanvasColorSel">
+        <canvas id="colorCanvas" width="300" height="300"></canvas>
+    </div>
+
+    <svg class="svg-in-the-back" >
+        <defs>
+            <linearGradient id="grad1" x1="0%" y1="85%" x2="100%" y2="15%">
+                <stop offset="0%" style="stop-color:#7a9f99;stop-opacity:1" />
+                <stop offset="100%" style="stop-color:#1b2a28;stop-opacity:1" />
+            </linearGradient>
+        </defs>
+
+
+        <path d="M 960,150
+                     A 450,450 0 0,1 960,1050
+                     A 450,450 0 0,1 960,150
+                     " fill="url(#grad1)" stroke="url(#grad1)" />
+    </svg>
+
+    <svg class="svg-in-the-back" >
+        <g id="line" style="transform-origin: 960px 600px;">
+        </g>
+    </svg>
+
+    <svg class="slider-drawings"  id="svg">
+        <!-- <svg viewBox="0 0 100 100"  id="svg"> -->
+
+        <defs>
+            <linearGradient id="grad4" x1="30%" y1="50%" x2="70%" y2="50%">
+                <stop id="lightBackgroundOffset1" offset="30%" style="stop-color:#90bab3;" />
+                <stop id="lightBackgroundOffset2" offset="100%" style="stop-color:#1a2927;" />
+            </linearGradient>
+            <radialGradient id="grad3">
+                <stop id="ledColorCenter" offset="30%" />
+                <stop id="ledColorOutside" offset="100%" />
+            </radialGradient>
+        </defs>
+
+
+        <path id="circleColorPath2" d="M 960,100
+                     A 450,450 0 0,1 960,1100
+                     A 450,450 0 0,1 960,100
+                     M 960,150
+                     A 450,450 0 0,1 960,1050
+                     A 450,450 0 0,1 960,150
+                     " fill="url(#grad3)" stroke="none" fill-rule="evenodd" />
+
+        <mask id="maskTopRight">
+            <path d="M 960,600
+                         L 1064.19, 9.12
+                         A 600,600 0 0,1  1550.88, 704.19
+                         " fill="white" />
+        </mask>
+
+        <mask id="maskTopLeft">
+            <path d="M 960,600
+                         L 855.81, 9.12
+                         A 600,600 0 0,0  369.12, 704.19
+                         " fill="white" />
+        </mask>
+
+        <mask id="maskBottom">
+            <path d="M 960,600
+                         L 360,1200
+                         L 1560,1200
+                         " fill="white" />
+        </mask>
+
+        <mask id="maskLight">
+            <path d="M 215,630
+                     A 2,2   0 0,0 215, 543
+                     L 125,543
+                     A 2,2   0 0,0 125, 630
+                     z
+                     " fill="white" />
+        </mask>
+
+
+        <path id="commandRot1" d="M 952,108
+                                 L 960,100
+                                 L 968,108
+                                 " fill="none" stroke="white" />
+
+
+        <path id="commandRot2" d="M 952,1092
+                                 L 960,1100
+                                 L 968,1092
+                                 " fill="none" stroke="white" />
+
+
+        <path id="actualRot1" d="M 952,62
+                                  L 960,70
+                                  L 968,62
+                                  " fill="none" stroke="white" />
+
+
+        <path id="actualRot2" d="M 952,1138
+                                  L 960,1130
+                                  L 968,1138
+                                  " fill="none" stroke="white" />
+
+        <!-- <g class="groupToMask">
+        <g class="groupToMask" mask="url(#maskTopLeft)">
+            <g id="pnRotation">
+
+                <path id="sliderPnHandle" d="M 524.95, 328.15
+                             L 513.08, 320.73
+                             M 555.75, 284.17
+                             L 544.72, 275.55
+                             M 554.74, 274.17
+                             L 545.8 , 285.61" fill="none" stroke="white" />
+
+                <path id="sliderPn2" d="M 573.56,252.05
+                             A 520,520   0 1,1 500.86,355.87
+                             " fill="none" stroke="#aaaaaa" />
+
+
+                <path id="sliderPn1" d="M 483.72 ,0
+                             M 556.27 ,0
+                             M 578.82, 302.19
+                             A 2,2   0 0,0 521.65, 257.53
+                             A 556.27,556.27   0 0,0 488.26, 305.22
+                             A 2,2   0 0,0 549.78, 343.67
+                             A 483.72,483.72   0 0,1 578.82, 302.19
+                             " fill="#aaaaaa00" stroke="#aaaaaa" />
+            </g>
+        </g> -->
+
+        <!-- <g class="groupToMask">
+        <g class="groupToMask" mask="url(#maskLight)">
+            <g id="readingTranslation2">
+                <path id="readingTranslation" d="M -10,520
+                         L 260,520
+                         L 260,650
+                         L -10,650
+                         z
+                         "
+                         fill="url(#grad4)" />
+
+                <path d="M 215,630
+                         A 2,2   0 0,0 215, 543
+                         L 125,543
+                         A 2,2   0 0,0 125, 630
+                         z
+                         "
+                         fill="none" stroke="yellow" />
+                <path d="
+                         M 60, 520
+                         L 330,520
+                         L 330,650
+                         L 60, 650
+                         z
+                         "
+                         fill="url(#grad4)" />
+            </g>
+        </g> -->
+
+
+
+        <!-- <path id="preset1" d="M 1450, 1080
+                     A 15,15   0 0,0 1550, 1080
+                     A 15,15   0 0,0 1450, 1080
+                     " fill="#FF000010" stroke="#aaaaaa" />
+        <path id="preset2" d="M 1600, 1080
+                     A 15,15   0 0,0 1700, 1080
+                     A 15,15   0 0,0 1600, 1080
+                     " fill="#00FF0010" stroke="#aaaaaa" />
+        <path id="preset3" d="M 1750, 1080
+                     A 15,15   0 0,0 1850, 1080
+                     A 15,15   0 0,0 1750, 1080
+                     " fill="#0000FF10" stroke="#aaaaaa" /> -->
+
+        <!-- <path id="sliderRot2Line" d="
+                     M 592.3, 967.7
+                     A 520,520   0 0,0 1327.7, 967.7
+                     " fill="none" stroke="#aaaaaa" />
+        <g id="rot2Rotation">
+
+            <path id="sliderRot2Handle" d="M 968,1124
+                         L 960,1116
+                         L 952,1124" fill="#aaaaaa00" stroke="white" />
+
+            <path id="sliderRot2" d="M 996.27, 1118.73
+                         A 2,2   0 0,0 923.73, 1118.73
+                         A 2,2   0 0,0 996.27, 1118.73
+                         " fill="#aaaaaa00" stroke="#aaaaaa" />
+        </g> -->
+
+        <!-- <path d="M 863.71, 87.9
+                       A 3,3   0 0,1 869.71, 87.9
+                       A 3,3   0 0,1 863.71, 87.9
+                       M 444.9, 690.3
+                       A 3,3 0 0,1 450.9, 690.3
+                       A 3,3 0 0,1 444.9, 690.3
+                       M 1047.3, 87.9
+                       A 3,3   0 0,1 1053.3, 87.9
+                       A 3,3   0 0,1 1047.3, 87.9
+                       M 1469.10, 690.3
+                       A 3,3 0 0,1 1475.10, 690.3
+                       A 3,3 0 0,1 1469.10, 690.3
+                       M 589.3, 967.7
+                       A 3,3   0 0,1 595.3, 967.7
+                       A 3,3   0 0,1 589.3, 967.7
+                       M 1324.7, 967.7
+                       A 3,3 0 0,1 1330.7, 967.7
+                       A 3,3 0 0,1 1324.7, 967.7
+                       " fill="#aaaaaa" stroke="#aaaaaa" /> -->
+
+
+        <mask id="maskCircle">
+            <path d="M 960,150
+                    A 450,450 0 0,1 960,1050
+                    A 450,450 0 0,1 960,150
+                    " fill="white" />
+        </mask>
+        <!-- <g class="groupToMask" mask="url(#maskCircle)" id="gpline">
+            <g id="line" style="transform-origin: 960px 600px;">
+
+            </g>
+        </g> -->
+
+
+
+        <!-- <path   d="M 536.4 , 308.87
+                       L 526.51, 302.07
+                       M 541.54, 301.52
+                       L 531.78, 294.55
+                       "
+                    fill="none"
+                    stroke="#aaaaaa"/> -->
+
+
+        <!-- <path   id="colorSelCountour"
+                    d="M 80,130
+                       A 50,50   0 0,1 180,130
+                       A 50,50   0 0,1 80,130
+                       "
+                    fill="#aaaaaa00"
+                    stroke="#aaaaaa"/> -->
+
+
+        <!-- <path id="rot1Line" d="M 1443.9,776.14 A 515,515 0 0,0 1354.5,269
+                               M 702.5,1046 A 515,515 0 0,0 1217.5,1046
+                     " fill="none" stroke="#aaaaaa" stroke-width="0.5" /> -->
+
+        <path id="rot1Line" d="M 702.5,154 A 515,515 0 0,1 1217.5,154
+                               M 702.5,1046 A 515,515 0 0,0 1217.5,1046
+                     " fill="none" stroke="#aaaaaa" stroke-width="0.5" />
+
+        <!-- <g class="groupToMask" mask="url(#maskTopRight)">
+        <g class="groupToMask">
+            <g id="rot1Rotation">
+                <path id="sliderRot1Handle" d="M 1334,236.5
+                             L 1324,236.5
+                             L 1324,226.5" fill="#aaaaaa00" stroke="white" />
+
+                <path id="sliderRot1Line" d="
+                             M 1301.15, 207.55
+                             A 520,520 0 1,0 1352.45, 258.85
+                             " fill="none" stroke="#aaaaaa" />
+                <path id="sliderRot1" d="
+                             M 1301.15, 207.55
+                             A 36.27,36.27   0 0,1 1352.45, 258.85
+                             A 36.27,36.27   0 0,1 1301.15, 207.55
+                             z
+                             " fill="#aaaaaa00" stroke="#aaaaaa" />
+            </g>
+        </g> -->
+
+    </svg>
+
+    <img id="seatImage1Shadow" class="seat-image-shadow"
+        src="{{ url_for('static', filename='icon_backrest_shadow.png') }}">
+    <img id="seatImage2Shadow" class="seat-image-shadow"
+        src="{{ url_for('static', filename='icon_assrest_shadow.png') }}">
+
+    <!-- <h1 id="commandChaud">25.0</h1>
+    <h1 id="commandChaudDeg">°C</h1> -->
+    <h1 id="actualChaud">31.0°C</h1>
+    <h1 id="actualFroid">20.0°C</h1>
+
+    <img id="seatImage1" class="seat-image" src="{{ url_for('static', filename='icon_backrest.png') }}">
+    <img id="seatImage2" class="seat-image" src="{{ url_for('static', filename='icon_assrest.png') }}">
+    <img id="lightSwitchOff" class="light-switch" src="{{ url_for('static', filename='light_off.svg') }}">
+    <img id="lightSwitchOn" class="light-switch" src="{{ url_for('static', filename='light_on.svg') }}">
+    <img id="lightSwitchHandle" class="light-switch-handle" src="{{ url_for('static', filename='light_handle.svg') }}">
+    <img id="pnHandle" class="light-switch-handle" src="{{ url_for('static', filename='light_handle.svg') }}">
+
+
+    <img id="handleRot1Plus" class="light-switch-handle" src="{{ url_for('static', filename='rot_1_plus.svg') }}">
+    <img id="handleRot1Moins" class="light-switch-handle" src="{{ url_for('static', filename='rot_1_moins.svg') }}">
+
+    <img id="handleRot2Plus" class="light-switch-handle" src="{{ url_for('static', filename='rot_2_plus.svg') }}">
+    <img id="handleRot2Moins" class="light-switch-handle" src="{{ url_for('static', filename='rot_2_moins.svg') }}">
+
+    <img id="preset1" class="light-switch-handle" src="{{ url_for('static', filename='preset_1.png') }}">
+    <img id="preset2" class="light-switch-handle" src="{{ url_for('static', filename='preset_2.png') }}">
+    <img id="preset3" class="light-switch-handle" src="{{ url_for('static', filename='preset_3.png') }}">
+    <img id="preset1_on" class="light-switch-handle" src="{{ url_for('static', filename='preset_on.svg') }}">
+    <img id="preset2_on" class="light-switch-handle" src="{{ url_for('static', filename='preset_on.svg') }}">
+    <img id="preset3_on" class="light-switch-handle" src="{{ url_for('static', filename='preset_on.svg') }}">
+
+    <img id="chaudOff" class="heat-command" src="{{ url_for('static', filename='fridge_off.png') }}">
+    <img id="chaudOn" class="heat-command" src="{{ url_for('static', filename='fridge_on.png') }}">
+
+    <img id="froidOff" class="fridge-command" src="{{ url_for('static', filename='fridge_off.png') }}">
+    <img id="froidOn" class="fridge-command" src="{{ url_for('static', filename='fridge_on.png') }}">
+
+    <!-- <img id="froidMoins" class="light-switch-handle" src="{{ url_for('static', filename='light_handle_moins.svg') }}">
+    <img id="froidPlus" class="light-switch-handle" src="{{ url_for('static', filename='light_handle_plus.svg') }}"> -->
+    <!-- <img id="chaudMoins" class="light-switch-handle" src="{{ url_for('static', filename='light_handle_moins.svg') }}">
+    <img id="chaudPlus" class="light-switch-handle" src="{{ url_for('static', filename='light_handle_plus.svg') }}"> -->
+
+    <img id="canFullLeft" class="light-switch-handle" src="{{ url_for('static', filename='can_full.svg') }}">
+    <img id="canEmptyLeft" class="light-switch-handle" src="{{ url_for('static', filename='can_empty.svg') }}">
+    <img id="canFullRight" class="light-switch-handle" src="{{ url_for('static', filename='can_full.svg') }}">
+    <img id="canEmptyRight" class="light-switch-handle" src="{{ url_for('static', filename='can_empty.svg') }}">
+
+    <img id="handleToMoveRot1" class="light-switch-handle"
+        src="{{ url_for('static', filename='light_handle_plus.svg') }}">
+    <img id="handleToMoveRot2" class="light-switch-handle"
+        src="{{ url_for('static', filename='light_handle_moins.svg') }}">
+    <img id="handleToMovePn" class="light-switch-handle" src="{{ url_for('static', filename='seat_icon.svg') }}">
+    <!-- <img id="seatIcon" class="seat-icon" src="{{ url_for('static', filename='seat_icon.svg') }}"> -->
+    <img id="pnBackground" class="light-switch-handle" src="{{ url_for('static', filename='pn_background.svg') }}">
+
+
+    <script src="{{url_for('static', filename='socket.io-3.0.4.js')}}"></script>
+    <script>
+
+        var socket = io();
+
+        socket.on('connect', function () {
+            socket.emit('new_connexion', { data: 'Where do I stand ?' });
+        });
+
+
+        function clickPnButton(event) {
+
+            const touch = event.touches[0];
+            if (valve_closed) {
+                touchPrevX = touch.clientX - 1664.322;
+            }
+            else {
+                touchPrevX = touch.clientX - 1570.522;
+            }
+        }
+
+        function movePnButton(event) {
+
+            const touch = event.touches[0];
+            // touchPrevX = touch.clientX;
+            // touchPrevY = touch.clientY;
+            if (valve_closed) {
+                if (touch.clientX < 1651) {
+                    pneumaticButton.style.left = "1570.522px";
+                    socket.emit('new_position_pn', { data: -1 });
+                    valve_closed = false;
+                    curveLine(0)
+                }
+                else if (touch.clientX > 1746) {
+                    if (!pump_open) {
+                        pump_open = true;
+                        socket.emit('new_position_pn', { data: 30 });
+                        pneumaticButton.style.left = "1758.122px";
+                    }
+
+                }
+                else {
+                    if (pump_open) {
+                        pump_open = false;
+                        socket.emit('new_position_pn', { data: 0 });
+                        pneumaticButton.style.left = "1664.322px";
+                    }
+                }
+            }
+            else {
+                if (touch.clientX > 1651) {
+                    pneumaticButton.style.left = "1664.322px";
+                    socket.emit('new_position_pn', { data: 0 });
+                    valve_closed = true;
+                }
+            }
+        }
+
+        function intervalRot1(increment) {
+            timerManager = setInterval(() => updateRot1(increment), 50)
+        }
+
+        function intervalRot2(increment) {
+            timerManager = setInterval(() => updateRot2(increment), 50)
+        }
+
+        function updateRot1(increment) {
+
+            rot1Command = Math.min(Math.max(rot1Command + increment, 710), 3440);
+            socket.emit('new_position_rot_1', { data: rot1Command });
+            const newTransform = `rotate(${(30 - (rot1Command - 710) / 45.5)} 960 600)`;
+            commandRot1Visual.setAttribute('transform', newTransform);
+        }
+
+        function updateRot2(increment) {
+
+            rot2Command = Math.min(Math.max(rot2Command + increment, 710), 3440);
+            socket.emit('new_position_rot_2', { data: rot2Command });
+            const newTransform = `rotate(${(30 - (rot2Command - 710) / 45.5)} 960 600)`;
+            commandRot2Visual.setAttribute('transform', newTransform);
+        }
+
+        function clickRot2Handle(event) {
+
+            stx = (rot2Handle.style.left);
+            sty = (rot2Handle.style.top);
+            const touch = event.touches[0];
+            touchPrevX = touch.clientX;
+            touchPrevY = touch.clientY;
+
+            rot2PrevX = parseInt(stx.substr(0, stx.search('px')));
+            rot2PrevY = parseInt(sty.substr(0, sty.search('px')));
+        }
+
+        function moveRot2Handle(event) {
+
+            const touch = event.touches[0];
+            const dx = touch.clientX;
+            const dy = touch.clientY;
+            rot2Handle.style.left = (rot2PrevX + dx - touchPrevX).toString().concat('px');
+            rot2Handle.style.top = (rot2PrevY + dy - touchPrevY).toString().concat('px');
+        }
+
+        function clickPnHandle(event) {
+
+            stx = (pnHandle.style.left);
+            sty = (pnHandle.style.top);
+            const touch = event.touches[0];
+            touchPrevX = touch.clientX;
+            touchPrevY = touch.clientY;
+
+            pnPrevX = parseInt(stx.substr(0, stx.search('px')));
+            pnPrevY = parseInt(sty.substr(0, sty.search('px')));
+        }
+
+        function movePnHandle(event) {
+
+            const touch = event.touches[0];
+            const dx = touch.clientX;
+            const dy = touch.clientY;
+            pnHandle.style.left = (pnPrevX + dx - touchPrevX).toString().concat('px');
+            pnHandle.style.top = (pnPrevY + dy - touchPrevY).toString().concat('px');
+        }
+
+        function releasePneumatic(event) {
+            // if (valve_closed) {
+            pump_open = false;
+            pneumaticButton.style.left = "1664.322px";
+            socket.emit('new_position_pn', { data: 0 });
+            // }
+            // else {
+            //     pneumaticButton.style.left = "1570.522px";
+            // }
+        }
+
+        function init_sliders() {
+            const newTransform = `rotate(${(30)} 960 600)`;
+            actualRot1Visual.setAttribute('transform', newTransform);
+            actualRot2Visual.setAttribute('transform', newTransform);
+            commandRot1Visual.setAttribute('transform', newTransform);
+            commandRot2Visual.setAttribute('transform', newTransform);
+        }
+
+        const dad_bod = document.body;
+        dad_bod.addEventListener('touchstart', function (event) {
+
+            if (event.target == canvas) {
+                colorSel(event);
+            }
+            else {
+                hideCanvas(event);
+                if (event.target == lightSwitch) {
+                    lightSwitching(event);
+                }
+                else if ((event.target == preset1Button) || (event.target == preset1On)) {
+
+                    if (sequence_in_progress) {
+                        preset1On.style.visibility = "hidden";
+                        preset2On.style.visibility = "hidden";
+                        preset3On.style.visibility = "hidden";
+                        clearTimeout(fadingTimerManager);
+                        fadingTable = [];
+                        sequence_in_progress = false;
+                        socket.emit('preset', { data: 0 });
+                    }
+                    else {
+                        preset1On.style.visibility = "visible";
+                        createFading(1);
+                        fadingTimerManager = setInterval(() => applyFading(), 50);
+                        socket.emit('preset', { data: 1 });
+                        sequence_in_progress = true;
+                    }
+                }
+                else if ((event.target == preset2Button) || (event.target == preset2On)) {
+
+                    if (sequence_in_progress) {
+                        preset1On.style.visibility = "hidden";
+                        preset2On.style.visibility = "hidden";
+                        preset3On.style.visibility = "hidden";
+                        clearTimeout(fadingTimerManager);
+                        fadingTable = [];
+                        sequence_in_progress = false;
+                        socket.emit('preset', { data: 0 });
+                        console.log("pause");
+                    }
+                    else {
+                        preset2On.style.visibility = "visible";
+                        createFading(2);
+                        fadingTimerManager = setInterval(() => applyFading(), 200);
+                        socket.emit('preset', { data: 2 });
+                        sequence_in_progress = true;
+                    }
+                }
+                else if ((event.target == preset3Button) || (event.target == preset3On)) {
+
+                    if (sequence_in_progress) {
+                        preset1On.style.visibility = "hidden";
+                        preset2On.style.visibility = "hidden";
+                        preset3On.style.visibility = "hidden";
+                        clearTimeout(fadingTimerManager);
+                        fadingTable = [];
+                        sequence_in_progress = false;
+                        socket.emit('preset', { data: 0 });
+                    }
+                    else {
+                        preset3On.style.visibility = "visible";
+                        createFading(3);
+                        fadingTimerManager = setInterval(() => applyFading(), 200);
+                        socket.emit('preset', { data: 3 });
+                        sequence_in_progress = true;
+                    }
+                }
+                else if (event.target == image_color_sel) {
+                    displayCanvas(event);
+                }
+                // else if (event.target == upChaudButton) {
+                //     updateChaud(0.5);
+                //     timerManager = setTimeout(() => { intervalChaud(0.5) }, 350);
+                // }
+                // else if (event.target == downChaudButton) {
+                //     updateChaud(-0.5);
+                //     timerManager = setTimeout(() => { intervalChaud(-0.5) }, 350);
+                // }
+                // else if (event.target == upFroidButton) {
+                //     updateFroid(0.5);
+                //     timerManager = setTimeout(() => { intervalFroid(0.5) }, 350);
+                // }
+                // else if (event.target == downFroidButton) {
+                //     updateFroid(-0.5);
+                //     timerManager = setTimeout(() => { intervalFroid(-0.5) }, 350);
+                // }
+                else if (event.target == pneumaticButton) {
+                    clickPnButton(event);
+                }
+                else if (event.target == chaudOnButton) {
+                    socket.emit('ch_on');
+                }
+                else if (event.target == chaudOffButton) {
+                    socket.emit('ch_off');
+                }
+                else if (event.target == froidOnButton) {
+                    socket.emit('fr_on');
+                }
+                else if (event.target == froidOffButton) {
+                    socket.emit('fr_off');
+                }
+                else if (event.target == pneumaticBackground) {
+                    const touch = event.touches[0];
+                    if (touch.clientX < 1651) {
+                        pneumaticButton.style.left = "1570.522px";
+                        touchPrevX = touch.clientX - 1570.522;
+                        socket.emit('new_position_pn', { data: -1 });
+                        valve_closed = false;
+                    }
+                    else if (touch.clientX > 1746) {
+                        pump_open = true;
+                        socket.emit('new_position_pn', { data: 30 });
+                        pneumaticButton.style.left = "1758.122px";
+                        touchPrevX = touch.clientX - 1758.122;
+                    }
+                }
+
+
+
+                else if (event.target == rot1PlusButton) {
+                    if (sequence_in_progress)
+                        return
+                    updateRot1(-27.3);
+                    preset1On.style.visibility = "hidden";
+                    preset2On.style.visibility = "hidden";
+                    preset3On.style.visibility = "hidden";
+                    timerManager = setTimeout(() => { intervalRot1(-27.3) }, 350);
+                    // lines_angle += 1;
+                    // rotateLine(270 + (lines_angle));
+                    // console.log(270 + (lines_angle));
+                    // seatBack.style.transform = `rotate(${(lines_angle) * 0.4}deg)`;
+                    // seatBackShadow.style.transform = `rotate(${(lines_angle) * 0.35}deg)`;
+                }
+                else if (event.target == rot1MoinsButton) {
+                    if (sequence_in_progress)
+                        return
+                    updateRot1(27.3);
+                    preset1On.style.visibility = "hidden";
+                    preset2On.style.visibility = "hidden";
+                    preset3On.style.visibility = "hidden";
+                    timerManager = setTimeout(() => { intervalRot1(27.3) }, 350);
+                    // lines_angle -= 1;
+                    // rotateLine(270 + (lines_angle));
+                    // console.log(270 + (lines_angle));
+                    // seatBack.style.transform = `rotate(${(lines_angle) * 0.4}deg)`;
+                    // seatBackShadow.style.transform = `rotate(${(lines_angle) * 0.35}deg)`;
+                }
+                else if (event.target == rot2PlusButton) {
+                    if (sequence_in_progress)
+                        return
+                    updateRot2(27.3);
+                    preset1On.style.visibility = "hidden";
+                    preset2On.style.visibility = "hidden";
+                    preset3On.style.visibility = "hidden";
+                    timerManager = setTimeout(() => { intervalRot2(27.3) }, 350);
+                    // lines_curvature += 100;
+                    // //max = 2900
+                    // curveLine((lines_curvature))
+                }
+                else if (event.target == rot2MoinsButton) {
+                    if (sequence_in_progress)
+                        return
+                    updateRot2(-27.3);
+                    preset1On.style.visibility = "hidden";
+                    preset2On.style.visibility = "hidden";
+                    preset3On.style.visibility = "hidden";
+                    timerManager = setTimeout(() => { intervalRot2(-27.3) }, 350);
+                    // lines_curvature -= 100;
+                    // //min = 1000
+                    // curveLine((lines_curvature))
+                }
+            }
+
+
+
+        }, { passive: true });
+        dad_bod.addEventListener('touchmove', function (event) {
+
+            if (event.target == canvas) {
+                colorSel(event);
+            }
+            else if (event.target == pneumaticButton) {
+                movePnButton(event);
+            }
+            else if (event.target == pneumaticBackground) {
+                movePnButton(event);
+            }
+
+        }, { passive: true });
+
+        dad_bod.addEventListener('touchend', function (event) {
+            clearTimeout(timerManager);
+            if (event.target == pneumaticButton) {
+                releasePneumatic(event);
+            }
+            if (event.target == pneumaticBackground) {
+                releasePneumatic(event);
+            }
+            //     else if (event.target == slider_rot_2){
+            //         endDragRot2(event);
+            //     }
+            //     else if (event.target == slider_pn){
+            //         endDragPn(event);
+            //     }
+        });
+
+        document.getElementById('canEmptyLeft').style.visibility = "hidden";
+        document.getElementById('canEmptyRight').style.visibility = "hidden";
+        // document.getElementById('canFullLeft').style.visibility = "hidden";
+        // document.getElementById('canFullRight').style.visibility = "hidden";
+
+
+        const pneumaticBackground = document.getElementById('pnBackground');
+
+        const preset1Button = document.getElementById('preset1');
+        const preset2Button = document.getElementById('preset2');
+        const preset3Button = document.getElementById('preset3');
+
+        const preset1On = document.getElementById('preset1_on');
+        const preset2On = document.getElementById('preset2_on');
+        const preset3On = document.getElementById('preset3_on');
+
+        preset1On.style.visibility = "hidden";
+        preset2On.style.visibility = "hidden";
+        preset3On.style.visibility = "hidden";
+
+        const commandRot1Visual = document.getElementById('commandRot1');
+        const commandRot2Visual = document.getElementById('commandRot2');
+        const actualRot1Visual = document.getElementById('actualRot1');
+        const actualRot2Visual = document.getElementById('actualRot2');
+
+        // const upChaudButton = document.getElementById('chaudPlus');
+        // const downChaudButton = document.getElementById('chaudMoins');
+        // const labelConsigneChaud = document.getElementById('commandChaud');
+
+        // const upFroidButton = document.getElementById('froidPlus');
+        // const downFroidButton = document.getElementById('froidMoins');
+        const labelConsigneFroid = document.getElementById('commandFroid');
+        const labelActualChaud = document.getElementById('actualChaud');
+        const labelActualFroid = document.getElementById('actualFroid');
+
+
+        const pneumaticButton = document.getElementById('pnHandle');
+        const rot1PlusButton = document.getElementById('handleRot1Plus');
+        const rot1MoinsButton = document.getElementById('handleRot1Moins');
+        const rot2PlusButton = document.getElementById('handleRot2Plus');
+        const rot2MoinsButton = document.getElementById('handleRot2Moins');
+
+        const froidOffButton = document.getElementById('froidOff');
+        const froidOnButton = document.getElementById('froidOn');
+
+        const chaudOffButton = document.getElementById('chaudOff');
+        const chaudOnButton = document.getElementById('chaudOn');
+
+        const canvas = document.getElementById('colorCanvas');
+        const out_of_canvas = document.getElementById('outOfCanvas');
+        const ctx = canvas.getContext('2d');
+        const grad_led_bright = document.getElementById('ledColorBright');
+        const grad_led_dark = document.getElementById('ledColorDark');
+
+        const grad_led_center = document.getElementById('ledColorCenter');
+        const grad_led_outside = document.getElementById('ledColorOutside');
+
+        const image_color_sel = document.getElementById('colorSelImage');
+
+        const seatBackShadow = document.getElementById('seatImage1Shadow');
+        const seatBack = document.getElementById('seatImage1');
+
+
+        const lightSwitch = document.getElementById('lightSwitchHandle');
+        const lightOn = document.getElementById('lightSwitchOn');
+        const lightOff = document.getElementById('lightSwitchOff');
+        // const lightBackground = document.getElementById('readingTranslation');
+
+
+        const offset1 = document.getElementById('lightBackgroundOffset1');
+
+        // const stroke_color_sel = document.getElementById('colorSelCountour');
+
+        init_sliders();
+
+        seatBack.style.transformOrigin = "75px 448px";
+        seatBackShadow.style.transformOrigin = "75px 448px";
+
+        let firstConnection = true;
+
+        let sequence_in_progress = false;
+        let valve_closed = false;
+        let pump_open = false;
+
+        let lines_angle = 0;
+        let lines_curvature = 0;
+
+        let date_process = null;
+        let date_log = null;
+
+        let timerManager;
+        let fadingTimerManager;
+
+        let currentR = 0;
+        let currentG = 0;
+        let currentB = 0;
+
+        let sequenceRed   = [129, 200, 255];
+        let sequenceGreen = [12, 200, 162];
+        let sequenceBlue  = [201, 255, 102];
+
+        let fadingTable = new Array();
+
+        let readingLightIsOn = false;
+
+        let rot1IsDragging = false;
+        let rot2IsDragging = false;
+        let pnIsDragging = false;
+
+        let chaudConsigne = 25;
+        let froidConsigne = 25;
+
+        let rot1Command = 710;
+        let rot2Command = 710;
+
+        let rot1PrevX = 0;
+        let rot1PrevY = 0;
+        let rot2PrevX = 0;
+        let rot2PrevY = 0;
+        let pnPrevX = 0;
+        let pnPrevY = 0;
+
+        let touchPrevX = 0;
+        let touchPrevY = 0;
+
+        let rot1PrevAngle = 0;
+        let rot1PrevValue = 50.5;
+        let rot1Rotation = 0;
+
+        let rot2PrevAngle = 0;
+        let rot2PrevValue = 40.4;
+        let rot2Rotation = 0;
+
+        let pnPrevAngle = 0;
+        let pnRotation = 0;
+        let pnPrevRotation = 0;
+
+        let colorSelBool = false;
+
+        function applyFading() {
+            // Math.round( floatvalue );
+            if (fadingTable.length > 0){
+                const pixel = fadingTable.shift();
+
+                grad_led_center.style.stopColor = rgbGenerator(pixel[0], pixel[1], pixel[2], 255);
+                grad_led_outside.style.stopColor = rgbGenerator(pixel[0], pixel[1], pixel[2], 0);
+
+                date_process = new Date();
+                if (date_process - date_log < 100)
+                    return;
+                date_log = date_process;
+                socket.emit('new_color', { data: pixel });
+                
+                currentR = pixel[0];
+                currentG = pixel[1];
+                currentB = pixel[2];
+            }
+            else {
+                clearTimeout(fadingTimerManager);
+            }
+        }
+
+        function createFading(seqNumber) {
+            const rDiff = (sequenceRed[seqNumber - 1] - currentR)/60;
+            const gDiff = (sequenceGreen[seqNumber - 1] - currentG)/60;
+            const bDiff = (sequenceBlue[seqNumber - 1] - currentB)/60;
+            for (let x = 0; x < 60; x++) {
+                fadingTable.push([Math.round(currentR + (x * rDiff)), Math.round(currentG + (x * gDiff)), Math.round(currentB + (x * bDiff))]);
+            }
+        }
+
+
+        function intervalChaud(increment) {
+            timerManager = setInterval(() => updateChaud(increment), 115)
+        }
+
+        function intervalFroid(increment) {
+            timerManager = setInterval(() => updateFroid(increment), 115)
+        }
+
+        function updateChaud(increment) {
+            chaudConsigne = Math.min(Math.max(chaudConsigne + increment, 20), 40);
+            labelConsigneChaud.innerHTML = chaudConsigne.toFixed(1).toString();
+            socket.emit('new_cmd_chaud', { data: chaudConsigne });
+        }
+
+        function updateFroid(increment) {
+            froidConsigne = Math.min(Math.max(froidConsigne + increment, 10), 20);
+            labelConsigneFroid.innerHTML = froidConsigne.toFixed(1).toString();
+            socket.emit('new_cmd_froid', { data: froidConsigne });
+        }
+
+        function lightSwitching(event) {
+            if (readingLightIsOn) {
+                lightOff.style.visibility = 'visible';
+                lightOn.style.visibility = 'hidden';
+                lightSwitch.style.left = '1676.922px';
+                lightSwitch.style.animationName = 'lightSwipeToOff';
+                lightSwitch.style.animationDuration = '.4s';
+                readingLightIsOn = false;
+                socket.emit('light_on');
+
+                // offset1.style.offset = 
+            }
+            else {
+                socket.emit('light_off');
+                // const newTransform = `translate(70,0)`;
+                // lightBackground.setAttribute('transform', newTransform);
+                // lightBackground.style.left = '0px';
+                lightOn.style.visibility = 'visible';
+                lightOff.style.visibility = 'hidden';
+                lightSwitch.style.animationName = 'lightSwipeToOn';
+                lightSwitch.style.animationDuration = '.4s';
+                lightSwitch.style.left = '1762.57px';
+                readingLightIsOn = true;
+            }
+        }
+
+
+        function hideCanvas(event) {
+            if (colorSelBool) {
+                canvas.style.visibility = 'hidden';
+                canvas.style.animationName = 'canvasIn';
+                canvas.style.animationDuration = '.8s';
+                image_color_sel.style.visibility = "visible";
+                // stroke_color_sel.style.visibility = "visible";
+                colorSelBool = false;
+                out_of_canvas.style.visibility = 'hidden';
+            }
+        }
+        // );
+
+        function displayCanvas(event) {
+            canvas.style.visibility = 'visible';
+            canvas.style.animationName = 'canvasOut';
+            canvas.style.animationDuration = '.6s';
+            image_color_sel.style.visibility = "hidden";
+            // stroke_color_sel.style.visibility = "hidden";
+            colorSelBool = true;
+            out_of_canvas.style.visibility = 'visible';
+        }
+        // );
+
+
+        for (let x = 0; x < canvas.width; x++) {
+            const hue = x / canvas.width * 360;
+            for (let y = 0; y < canvas.height; y++) {
+                const luminosity = 100 - (y / canvas.height * 100);
+                ctx.fillStyle = `hsl(${hue}, 100%, ${luminosity}%)`;
+                ctx.fillRect(x, y, 1, 1);
+            }
+        }
+
+        function rgbGenerator(r, g, b, gamma) {
+            return "rgb(" + r + "," + g + "," + b + "," + gamma + ")";
+        }
+
+
+        socket.on('sequence', function (msg) {
+            if (msg.end == 1) {
+            
+                fadingTable = [];
+                clearTimeout(fadingTimerManager);
+                sequence_in_progress = false;
+                preset1On.style.visibility = "hidden";
+                preset2On.style.visibility = "hidden";
+                preset3On.style.visibility = "hidden";
+            }
+        });
+
+
+        socket.on('mydata', function (msg) {
+            for (var key in msg.data) {
+                if (msg.data.hasOwnProperty(key)) {
+                    var nomObjet = key;
+
+                    if (nomObjet != "timestamp") {
+                        if (nomObjet == "P4C1790") {
+                            var pressure = (msg.data[key]["pression"]["filtered_pressure_hPa"])
+                            if (pressure > 0) {
+                                curveLine(pressure)
+                                //animateCurvature(pressure)
+                            }
+
+                        }
+
+                        if (nomObjet == "RPC3300") {
+                            var rot1Updated = (msg.data[key]["position"]["position_step"])
+
+
+                            rotateLine(270 - ((rot1Updated - 710) / 68.25));
+                            seatBack.style.transform = `rotate(${(710 - rot1Updated) / 68.25}deg)`;
+                            seatBackShadow.style.transform = `rotate(${(710 - rot1Updated) / 78}deg)`;
+
+                            const newTransform = `rotate(${(30 - (rot1Updated - 710) / 45.5)} 960 600)`;
+                            actualRot1Visual.setAttribute('transform', newTransform);
+
+                            if (firstConnection) {
+                                rot1Command = rot1Updated;
+                                commandRot1Visual.setAttribute('transform', newTransform);
+                            }
+                            if (sequence_in_progress) {
+                                rot1Command = rot1Updated;
+                                commandRot1Visual.setAttribute('transform', newTransform);
+                            }
+
+                        }
+                        if (nomObjet == "RPC3301") {
+                            var rot2Updated = (msg.data[key]["position"]["position_step"])
+                            const newTransform = `rotate(${(30 - (rot2Updated - 710) / 45.5)} 960 600)`;
+                            actualRot2Visual.setAttribute('transform', newTransform);
+                            if (firstConnection) {
+                                rot2Command = rot2Updated;
+                                commandRot2Visual.setAttribute('transform', newTransform);
+                            }
+                            if (sequence_in_progress) {
+                                rot2Command = rot2Updated;
+                                commandRot2Visual.setAttribute('transform', newTransform);
+                            }
+                            let origine = document.getElementById("line").style.transformOrigin
+                            console.log(origine.split(" ")[1])
+                            //pos moteur * 1260 / 3440
+
+                            const positionLigneMin = 700;
+                            const positionLigneMax = 1260;
+                            const pasMoteurMin = 740;
+                            const pasMoteurMax = 3440;
+
+                            const pente = (positionLigneMin - positionLigneMax) / (pasMoteurMax - pasMoteurMin); // Inverted slope
+                            const ordonneeOrigine = positionLigneMax - pente * pasMoteurMin; // Inverted y-intercept
+
+                            const positionLigne = pente * rot2Updated + ordonneeOrigine;
+
+                            document.getElementById("line").style.transformOrigin = positionLigne + 'px ' + origine.split(" ")[1];
+
+
+
+                        }
+                        if (nomObjet == "COMFORT") {
+                            if ((msg.data[key]["mini_fridge"]["can_1_presence_None"]) == "FALSE") {
+                                document.getElementById('canFullLeft').style.visibility = "hidden";
+                                document.getElementById('canEmptyLeft').style.visibility = "visible";
+                            }
+                            else {
+                                document.getElementById('canFullLeft').style.visibility = "visible";
+                                document.getElementById('canEmptyLeft').style.visibility = "hidden";
+
+                            }
+                            if ((msg.data[key]["mini_fridge"]["can_2_presence_None"]) == "FALSE") {
+                                document.getElementById('canFullRight').style.visibility = "hidden";
+                                document.getElementById('canEmptyRight').style.visibility = "visible";
+                            }
+                            else {
+                                document.getElementById('canFullRight').style.visibility = "visible";
+                                document.getElementById('canEmptyRight').style.visibility = "hidden";
+                            }
+                            if ((msg.data[key]["mini_fridge"]["cooling_None"]) == "FALSE") {
+                                froidOffButton.style.visibility = "hidden";
+                                froidOnButton.style.visibility = "visible";
+                                labelActualFroid.style.color = "#AAAAAA";
+                            }
+                            else {
+                                froidOffButton.style.visibility = "visible";
+                                froidOnButton.style.visibility = "hidden";
+                                labelActualFroid.style.color = "#879EE4";
+                            }
+                            if ((msg.data[key]["heating_pad"]["heating_None"]) == "FALSE") {
+                                chaudOffButton.style.visibility = "hidden";
+                                chaudOnButton.style.visibility = "visible";
+                                labelActualChaud.style.color = "#AAAAAA";
+                            }
+                            else {
+                                chaudOffButton.style.visibility = "visible";
+                                chaudOnButton.style.visibility = "hidden";
+                                labelActualChaud.style.color = "#c38787";
+                            }
+
+                            labelActualChaud.innerHTML = (msg.data[key]["heating_pad"]["actual_temperature_°C"]).concat('°C');
+                            labelActualFroid.innerHTML = (msg.data[key]["mini_fridge"]["actual_temperature_°C"]).concat('°C');
+                        }
+                    }
+                }
+            }
+            firstConnection = false
+        });
+
+        // function startDragPn(event) {
+        //     pnIsDragging = true;
+        //     const touch = event.touches[0];
+        //     const dx = touch.clientX - 960;
+        //     const dy = touch.clientY - 600;
+
+        //     pnPrevAngle = Math.atan2(dy, dx) * 180 / Math.PI;
+        // }
+
+        // function dragPn(event) {
+
+        //     if (pnIsDragging) {
+        //         const touch = event.touches[0];
+        //         const dx = touch.clientX - 960;
+        //         const dy = touch.clientY - 600;
+
+        //         const angle = Math.atan2(dy, dx) * 180 / Math.PI;
+        //         // const angle = dx;
+
+        //         if (pnPrevAngle !== null) {
+        //             pnRotation = (angle - pnPrevAngle + 360) % 360;
+        //             if (pnRotation > 180)
+        //                 pnRotation -= 360;
+        //             pnRotation = Math.min(37.4, Math.max(pnRotation, -37.4));
+        //             // const currentTransform = slider_rot_1.getAttribute('transform');
+        //             // const newTransform = `rotate(${rotation} 960 600) ${currentTransform || ''}`;
+        //             const newTransform = `rotate(${pnRotation} 960 600)`;
+        //             pn_rotation.setAttribute('transform', newTransform);
+        //         }
+        //         if (pnPrevRotation != pnRotation) {
+        //             socket.emit('new_position_pn', { data: (pnRotation / 37.4) });
+        //             pnPrevRotation = pnRotation;
+        //         }
+        //     }
+        // }
+
+        // function endDragPn() {
+        //     pnIsDragging = false;
+        //     socket.emit('new_position_pn', { data: 0});
+        //     const newTransform = `rotate(0 960 600)`;
+        //     pn_rotation.setAttribute('transform', newTransform);
+        // }
+
+        // function startDragRot1(event) {
+        //     rot1IsDragging = true;
+        //     const touch = event.touches[0];
+        //     const dx = touch.clientX - 960;
+        //     const dy = touch.clientY - 600;
+
+        //     rot1PrevAngle = Math.atan2(dy, dx) * 180 / Math.PI;
+        // }
+
+        // function dragRot1(event) {
+
+        //     if (rot1IsDragging) {
+        //         const touch = event.touches[0];
+        //         const dx = touch.clientX - 960;
+        //         const dy = touch.clientY - 600;
+
+        //         const angle = Math.atan2(dy, dx) * 180 / Math.PI;
+        //         // const angle = dx;
+
+        //         if (rot1PrevAngle !== null) {
+        //             rot1Rotation = Math.min(50.5, Math.max(angle - rot1PrevAngle + rot1PrevValue, -30.5));
+        //             // const currentTransform = slider_rot_1.getAttribute('transform');
+        //             // const newTransform = `rotate(${rotation} 960 600) ${currentTransform || ''}`;
+        //             const newTransform = `rotate(${rot1Rotation} 960 600)`;
+        //             rot_1_rotation.setAttribute('transform', newTransform);
+        //             // const newTransformSeat = `rotate(${rot1Rotation} 835.38 786.15)`;
+        //             // const newTransformShadow = `rotate(${rot1Rotation} 865.38 766.15)`;
+        //             // seatBackShadow.setAttribute('transform', newTransformShadow);
+        //             // seatBack.setAttribute('transform', newTransformSeat);
+        //             seatBack.style.transform = `rotate(${(rot1Rotation - 50.5) * 0.4}deg)`;
+        //             seatBackShadow.style.transform = `rotate(${(rot1Rotation - 50.5) * 0.35}deg)`;
+        //             seatBack.style.transformOrigin = "75px 448px";
+        //             seatBackShadow.style.transformOrigin = "75px 448px";
+        //             // console.log("rot1PrevAngle :",`rotate(${(rot1Rotation - 50.5) * 0.4}deg)`)
+        //             // rotateLine(270+(rot1Rotation - 50.5) * 0.4)
+        //             // seatBack.setAttribute('transform', 'rotate(50)');
+        //         }
+        //     }
+        // }
+
+        // function endDragRot1() {
+        //     rot1IsDragging = false;
+        //     rot1PrevValue = rot1Rotation;
+        //     socket.emit('new_position_rot_1', { data: (rot1Rotation + 30.5) / 0.81 });
+        // }
+
+        // function startDragRot2(event) {
+        //     const touch = event.touches[0];
+        //     const dx = touch.clientX - 960;
+        //     const dy = touch.clientY - 600;
+
+        //     rot2PrevAngle = Math.atan2(dy, dx) * 180 / Math.PI;
+        // }
+
+        // function dragRot2(event) {
+
+        //         const touch = event.touches[0];
+        //         const dx = touch.clientX - 960;
+        //         const dy = touch.clientY - 600;
+
+        //         const angle = Math.atan2(dy, dx) * 180 / Math.PI;
+        //         // const angle = dx;
+
+        //         if (rot2PrevAngle !== null) {
+        //             rot2Rotation = Math.min(40.5, Math.max(angle - rot2PrevAngle + rot2PrevValue, -40.5));
+        //             // const currentTransform = slider_rot_1.getAttribute('transform');
+        //             // const newTransform = `rotate(${rotation} 960 600) ${currentTransform || ''}`;
+        //             const newTransform = `rotate(${rot2Rotation} 960 600)`;
+        //             rot_2_rotation.setAttribute('transform', newTransform);
+        //         }
+        // }
+
+        // function endDragRot2() {
+        //     rot2PrevValue = rot2Rotation;
+        //     socket.emit('new_position_rot_2', { data: (rot2Rotation + 40.5) / 0.81 });
+        // }
+
+        function colorSel(event) {
+            const touch = event.touches[0];
+            const x = touch.clientX - 80;
+            const y = touch.clientY - 80;
+            if ((x >= 300) || (y >= 300) || (x <= 0) || (y <= 0))
+                return;
+            const imageData = ctx.getImageData(x, y, 1, 1);
+            const pixel = imageData.data;
+
+            currentR = pixel[0];
+            currentG = pixel[1];
+            currentB = pixel[2];
+
+            grad_led_center.style.stopColor = rgbGenerator(pixel[0], pixel[1], pixel[2], 255);
+            grad_led_outside.style.stopColor = rgbGenerator(pixel[0], pixel[1], pixel[2], 0);
+
+            date_process = new Date();
+            if (date_process - date_log < 100)
+                return;
+            date_log = date_process;
+            socket.emit('new_color', { data: pixel });
+
+            // const rgb = `rgb(${pixel[0]}, ${pixel[1]}, ${pixel[2]})`;
+            // document.body.style.backgroundColor = rgb;
+        };
+
+
+        function createCurvedLines(numLines, lineSpacing, circleRadius, curvature) {
+            const lines = [];
+            const verticalSpacing = circleRadius * 2 / (numLines - 1);
+
+            for (let i = 0; i < numLines; i++) {
+                const y = i * verticalSpacing - circleRadius;
+                const startX = -Math.sqrt(circleRadius * circleRadius - y * y);
+                const startY = y;
+                const endX = Math.sqrt(circleRadius * circleRadius - y * y);
+                const endY = y;
+                const distanceFromCenter = Math.abs(y) / circleRadius;
+                const adjustedCurvature = curvature * Math.exp(-distanceFromCenter);
+
+                const controlPointX = (startX + endX) / 2;
+                const controlPointY = (startY + endY) / 2 + adjustedCurvature;
+
+                if (startX != endX || startY != endY) {
+                    lines.push({ startX, startY, endX, endY, controlPointX, controlPointY });
+                }
+            }
+            return lines;
+        }
+
+        function displayLines(lines) {
+            const svg = document.getElementById('line'); // Sélectionnez la balise <g> correcte
+            svg.innerHTML = ''; // Effacez le contenu existant du groupe <g>
+
+            lines.forEach((line, index) => {
+                const svgPath = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+                const pathString = `M ${line.startX + 960} ${line.startY + 600} Q ${line.controlPointX + 960} ${line.controlPointY + 600} ${line.endX + 960} ${line.endY + 600}`;
+                svgPath.setAttribute('d', pathString);
+                svgPath.setAttribute('stroke', '#aaaaaa');
+                svgPath.setAttribute('fill', 'none');
+                svgPath.setAttribute('stroke-width', 1);
+                svgPath.setAttribute('id', `svgLine${index}`); // Ajouter un identifiant unique à chaque ligne
+                svg.appendChild(svgPath); // Ajouter le chemin au groupe <g>
+            });
+        }
+
+
+
+
+
+        function rotateLine(deg) {
+            const circleSVG = document.getElementById('line');
+            circleSVG.style.transform = `rotate(${deg}deg)`;
+        }
+
+        function curveLine(curvature) {
+            const curvedLines = createCurvedLines(numLines, lineSpacing, circleRadius, curvature);
+            displayLines(curvedLines);
+        }
+
+
+        const numLines = 40;
+        let circleRadius = 1000;
+        const lineSpacing = (circleRadius * 2) / (numLines - 1);
+        let curvature = 100;
+
+        function animateCurvature(dest) {
+            const step = dest > curvature ? 0.5 : -0.5;
+            curvature += step;
+            const curvedLines = createCurvedLines(numLines, lineSpacing, circleRadius, curvature);
+            displayLines(curvedLines);
+            if (curvature === dest) {
+                return;
+            }
+
+            requestAnimationFrame(() => animateCurvature(dest));
+        }
+
+
+        // animateCurvature(); // Lancer l'animation initiale
+        const curvedLines = createCurvedLines(numLines, lineSpacing, circleRadius, curvature);
+        displayLines(curvedLines);
+        rotateLine(270)
+    </script>
+
+</body>
+
+</html>

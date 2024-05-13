@@ -1,0 +1,139 @@
+<!-- <!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Affichage SVG</title>
+    <script src="{{url_for('static', filename='svg.min.js')}}"></script>
+
+    <script src="{{url_for('static', filename='jquery-3.7.1.js')}}"></script>
+    <script src="{{url_for('static', filename='socket.io-3.0.4.js')}}"></script>
+    <style>
+        #svg-container {
+            width: 100%;
+            max-width: 100%;
+            height: auto;
+        }
+    </style>
+    
+</head>
+
+<body>
+    <input type="text" value="Dragon----- - - - ->" placeholder="Type text here...">
+    <div id="drawing"></div>
+    <script>
+        var draw = SVG().addTo('#drawing').viewbox(0, 0, 300, 140)
+
+        var image = draw.image('script/barres_degradees.svg').size(100, 100).hide();
+
+        var text = draw.text(function (add) {
+            add.tspan("----------------------------")
+        })
+        var test = draw.text(function (add) {
+            add.tspan("----------------------------")
+        })
+        textPath = text.path('M10 80 C 40 10, 65 10, 95 80 S 150 150, 180 80')
+
+        textPath.animate(1000).ease('<>')
+            .plot('M10 80 C 40 150, 65 150, 95 80 S 150 10, 180 80')
+            // .loop(false, true)
+
+
+        function updateText(textPath) {
+            return function () {
+                textPath.tspan(this.value)
+  
+            }
+        }
+    </script>
+
+</body>
+
+</html> -->
+
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Toast Example</title>
+    <link rel="stylesheet" href="{{url_for('static', filename='css/bootstrap.min.css')}}">
+    <script src="{{url_for('static', filename='bootstrap.min.js')}}"></script>
+    <style>
+        
+        .toast {
+            background-color: white;
+            border: 1px solid transparent;
+            color: black;
+            font-size: 25px;
+        }
+
+        .toast.success {
+            border-color: #28a745;
+            color: #28a745;
+        }
+
+        .toast.warning {
+            border-color: #ffc107;
+            color: #ffc107;
+        }
+
+        .toast.danger {
+            border-color: #dc3545;
+            color: #dc3545;
+        }
+    </style>
+</head>
+
+<body>
+
+    <button type="button" class="btn btn-primary" id="liveToastBtn">Show live toast</button>
+
+    <div class="position-fixed bottom-0 end-0 p-3" style="z-index: 11">
+        <div id="toastContainer" aria-live="polite" aria-atomic="true"></div>
+    </div>
+
+    <script>
+        function showToast(title, message, type) {
+            var toastElement = document.createElement('div');
+            toastElement.classList.add('toast');
+            toastElement.classList.add(type); 
+            toastElement.setAttribute('role', 'alert');
+            toastElement.setAttribute('aria-live', 'assertive');
+            toastElement.setAttribute('aria-atomic', 'true');
+
+            toastElement.innerHTML = `
+                <div class="toast-header" style="background-color: inherit;">
+                <strong class="me-auto">${title}</strong>
+                <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+                </div>
+                <div class="toast-body">
+                ${message}
+                </div>
+            `;
+
+            document.getElementById('toastContainer').appendChild(toastElement);
+
+            var bsToast = new bootstrap.Toast(toastElement);
+
+            bsToast.show();
+
+            setTimeout(function () {
+                bsToast.hide();
+                toastElement.remove();
+            }, 30000);
+        }
+
+        document.getElementById('liveToastBtn').addEventListener('click', function () {
+            showToast('Bootstrap', 'This is a success message.', 'success');
+            showToast('Warning', 'This is a warning message.', 'warning');
+            showToast('Danger', 'This is a danger message.', 'danger');
+        });
+    </script>
+
+</body>
+
+</html>

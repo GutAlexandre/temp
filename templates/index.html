@@ -1,0 +1,834 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>MAINTENANCE PANEL</title>
+    <link rel="stylesheet" href="{{url_for('static', filename='css/multiple.css')}}">
+    <link rel="stylesheet" href="{{url_for('static', filename='css/bootstrap.min.css')}}">
+
+    <link rel="icon" type="image/png" href="{{url_for('static', filename='faviconV2.png')}}">
+
+    <style>
+        @font-face {
+            font-family: 'Rubik';
+            src: url("{{url_for('static', filename='css/multiple.css')}}") format('truetype');
+            font-weight: 100;
+            font-style: italic;
+        }
+
+        .green-box {
+            background: linear-gradient(to top right, #7a9f99, #1b2a28);
+            border-radius: 10px;
+            margin-bottom: 10px;
+            border: 2px solid #aaaaaa;
+            background-attachment: fixed;
+            overflow: hidden;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Rubik', sans-serif;
+            background-color: #f2f2f2;
+            background-image: url("{{ url_for('static', filename= 'background.png') }}");
+            background-size: cover;
+            /* Couvrir tout le fond */
+            background-position: center;
+            /* Centrer l'image de fond */
+            display: grid;
+            grid-template-rows: auto 1fr;
+            height: 100vh;
+            font-size: 15px;
+        }
+
+
+        h1 {
+            text-align: center;
+            background-color: #333;
+            color: white;
+            padding: 10px 0;
+            margin: 0;
+        }
+
+        main {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            justify-content: center;
+            padding: 10px;
+        }
+
+        p {
+            margin-top: -5px;
+
+        }
+
+        .large-box {
+            /* grid-row: span 4; */
+            padding: 20px;
+            text-align: center;
+            align-items: center;
+            border-radius: 10px;
+            background: linear-gradient(to bottom left, #7a9f99, #1b2a28);
+            background-position: 0 0;
+            font-size: 15px;
+            border: 2px solid #aaaaaa;
+        }
+
+        .data-box {
+            padding: 5px;
+            text-align: left;
+            color: white;
+            border-radius: 10px;
+            padding: 10px;
+            background: linear-gradient(to bottom left, #7a9f99, #1b2a28);
+            background-position: bottom left;
+            font-size: 15px;
+            border: 2px solid #aaaaaa;
+        }
+
+        .rotating-image2 {
+            width: 100%;
+            max-width: 110px;
+            height: auto;
+            animation: rotate 5s linear infinite;
+        }
+
+        .rotating-image {
+            width: 60%;
+            max-width: 100px;
+            height: auto;
+            animation: none;
+        }
+
+        .offset-right {
+            padding-left: 40px;
+        }
+
+        .temp-image {
+            width: 60%;
+            max-width: 30px;
+            height: auto;
+        }
+
+        @keyframes rotate {
+            from {
+                transform: rotate(0deg);
+            }
+
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        th {
+            background-color: #333;
+            color: white;
+        }
+
+        table {
+            border-collapse: collapse;
+            /* border: 2px solid rgb(140 140 140); */
+            font-family: sans-serif;
+            font-size: 0.8rem;
+            letter-spacing: 1px;
+            size: 100%;
+            width: 100%;
+            height: 100%;
+            margin: 0;
+            padding: 0;
+        }
+
+        caption {
+            caption-side: bottom;
+            padding: 10px;
+            font-weight: bold;
+        }
+
+        thead,
+        tfoot {
+            background-color: rgb(228 240 245);
+        }
+
+        td,
+        th {
+            padding: 6px 7px;
+            font-size: 14px;
+            text-align: center;
+            font-weight: normal;
+            line-height: 0.8;
+        }
+
+
+        td:last-of-type {
+            text-align: center;
+        }
+
+        tbody {
+            color: #ddd
+                /* background-color: rgb(237 238 242); */
+        }
+
+        tfoot th {
+            text-align: right;
+        }
+
+        tfoot td {
+            font-weight: bold;
+        }
+
+        .same-font {
+            background-attachment: fixed;
+        }
+
+        @keyframes blink {
+            0% {
+                border-color: red;
+            }
+
+            50% {
+                border-color: #aaaaaa;
+            }
+
+            100% {
+                border-color: red;
+            }
+        }
+
+        .blinking-border {
+            animation: blink 1s infinite alternate;
+            border-style: solid;
+            border-width: 2px;
+            border-radius: 10px;
+        }
+
+
+        .toast {
+            background-color: white;
+            border: 1px solid transparent;
+            color: black;
+            font-size: 12px;
+        }
+
+        .toast.success {
+            border-color: rgba(40, 167, 69, 0.8);
+            color: rgba(40, 167, 69, 0.8);
+        }
+
+        .toast.warning {
+            border-color: rgba(255, 193, 7, 0.8);
+            color: rgba(255, 193, 7, 0.8);
+        }
+
+        .toast.danger {
+            border-color: rgba(220, 53, 69, 0.8);
+            color: rgba(220, 53, 69, 0.8);
+        }
+
+        .toast.success .toast-header {
+            background-color: rgba(40, 167, 69, 0.5);
+            /* Vert avec opacité */
+        }
+
+        .toast.warning .toast-header {
+            background-color: rgba(255, 193, 7, 0.5);
+            /* Jaune avec opacité */
+        }
+
+        .toast.danger .toast-header {
+            background-color: rgba(220, 53, 69, 0.5);
+            /* Rouge avec opacité */
+        }
+
+
+        #logo_monitoring {
+            width: 6%;
+            margin: -83px -344px -114px 300px;
+            vertical-align: middle;
+        }
+    </style>
+</head>
+
+<body>
+
+    <h1>MAINTENANCE PANEL
+        <img id="logo_monitoring" src="{{ url_for('static', filename='logo_monitoring.svg') }}" alt="Monitoring"
+            onclick="monitor_show()">
+    </h1>
+
+    <main>
+
+
+    </main>
+    <div class="position-fixed bottom-0 end-0 p-3" style="z-index: 11">
+        <div id="toastContainer" aria-live="polite" aria-atomic="true"></div>
+    </div>
+    <script src="{{url_for('static', filename='multiple.min.js')}}"></script>
+    <script src="{{url_for('static', filename='jquery-3.7.1.js')}}"></script>
+    <script src="{{url_for('static', filename='socket.io-3.0.4.js')}}"></script>
+    <script src="{{url_for('static', filename='bootstrap.min.js')}}"></script>
+    <script src="{{url_for('static', filename='chart.js')}}"></script>
+
+    <script type="text/javascript" charset="utf-8">
+
+        function monitor_show() {
+            var modalContent = `
+                <div class="modal-dialog modal-xl">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title">History</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="container-fluid">
+                                <div class="row">
+                                    <div class="col-8 border-end pe-3" style="overflow: hidden;">Contenu de la colonne gauche</div>
+                                    <div class="col-4 ps-3" id="dataContainer" style="max-height: 400px; overflow-y: auto;"></div> <!-- Colonne de droite -->
+                                </div>
+                            </div>
+                            <!-- Contenu de votre modal ici -->
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            var existingModal = document.querySelector('.modal');
+            if (existingModal) {
+                existingModal.remove();
+            }
+
+            var modalElement = document.createElement('div');
+            modalElement.classList.add('modal');
+            modalElement.innerHTML = modalContent;
+
+            document.body.appendChild(modalElement);
+
+            var modal = new bootstrap.Modal(modalElement);
+            modal.show();
+
+            var dataContainer = document.getElementById('dataContainer');
+            history.forEach(obj => {
+                var objElement = document.createElement('div');
+                objElement.classList.add('alert', 'alert-' + obj.type, 'mb-3');
+                objElement.setAttribute('role', 'alert');
+                objElement.setAttribute('style', 'font-size: 13px;');
+
+                objElement.innerHTML = `
+            <ul class="list-unstyled">
+                ${Object.entries(obj).map(([key, value]) => {
+                    if (key === 'timestamp') {
+                        const date = new Date(value * 1000);
+                        const formattedDate = `${date.toLocaleDateString('fr-FR')} - ${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}`;
+                        return `<li><strong>${key}:</strong> ${formattedDate}</li>`;
+                    }
+                    return `<li><strong>${key}:</strong> ${value}</li>`;
+                }).join('')}
+            </ul>
+        `;
+                dataContainer.appendChild(objElement);
+            });
+        }
+
+
+
+
+
+
+        function createChart(id, data) {
+            var ctx = document.getElementById(id).getContext('2d');
+            var myChart = new Chart(ctx, {
+                type: 'line',
+                data: data,
+                options: {
+
+                }
+            });
+        }
+
+
+        function createNestedElements(parentElement, data) {
+            for (var key in data) {
+                if (key != "status") {
+                    if (typeof data[key] === 'object') {
+                        var newTable = document.createElement('table');
+
+                        newTable.setAttribute('id', key);
+
+                        (function (tableKey) {
+                            newTable.addEventListener('click', function (event) {
+                                var parentDataBox = event.target.closest('.data-box');
+                                if (parentDataBox) {
+                                    var paragraphs = parentDataBox.querySelectorAll('p');
+                                    var tableName = '';
+                                    paragraphs.forEach(function (paragraph) {
+                                        if (paragraph.textContent.includes('NAME')) {
+                                            var textAfterColon = paragraph.textContent.split(':')[1].trim();
+                                            tableName = textAfterColon;
+                                        }
+                                    });
+                                    var table = event.currentTarget;
+                                    var rows = table.querySelectorAll('tbody tr');
+                                    var numberOfRows = rows.length;
+                                    var modalBodyContentLeft = '';
+                                    var modalBodyContentRight = '';
+
+                                    for (var i = 0; i < numberOfRows; i++) {
+                                        var rowData = rows[i].querySelector('td[scope="row"]').id;
+                                        var modalBodyContent = i % 2 === 0 ? modalBodyContentLeft : modalBodyContentRight;
+                                        modalBodyContent += `
+                    <div class="row">
+                        <div class="col">
+                            <p>ID de la ligne ${i + 1}: ${rowData}</p>
+                            <canvas id="${rowData}-graph" class="chart-canvas"></canvas>
+                        </div>
+                    </div>
+                `;
+
+                                        // Mettre à jour le contenu de la colonne correspondante
+                                        if (i % 2 === 0) {
+                                            modalBodyContentLeft = modalBodyContent;
+                                        } else {
+                                            modalBodyContentRight = modalBodyContent;
+                                        }
+                                    }
+
+                                    var modalContent = `
+                <div class="modal-dialog modal-xl">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title">${tableName} : ${tableKey}</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="container-fluid">
+                                <div class="row">
+                                    <div class="col">${modalBodyContentLeft}</div>
+                                    <div class="col">${modalBodyContentRight}</div>
+                                </div>
+                            </div>
+                            <!-- Contenu de votre modal ici -->
+                        </div>
+                    </div>
+                </div>
+            `;
+
+                                    var existingModal = document.querySelector('.modal');
+                                    if (existingModal) {
+                                        existingModal.remove();
+                                    }
+
+                                    var modalElement = document.createElement('div');
+                                    modalElement.classList.add('modal');
+                                    modalElement.innerHTML = modalContent;
+                                    document.body.appendChild(modalElement);
+
+                                    for (var i = 0; i < numberOfRows; i++) {
+                                        var rowData = rows[i].querySelector('td[scope="row"]').id;
+
+
+                                        let data_temp = []
+                                        database.forEach(element => {
+                                            let value = element[tableName][tableKey][rowData];
+                                            data_temp.push(value);
+                                        });
+
+
+
+
+
+
+
+                                        const labels = Array.from({ length: data_temp.length }, (_, index) => (index).toString());
+                                        count = data_temp.length;
+
+                                        var data = {
+                                            labels: labels,
+                                            datasets: [{
+                                                label: 'Dataset',
+                                                data: data_temp,
+                                                backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                                                borderColor: 'rgba(255, 99, 132, 1)',
+                                                borderWidth: 1
+                                            }]
+                                        };
+                                        createChart(rowData + '-graph', data);
+                                    }
+
+                                    var modal = new bootstrap.Modal(modalElement);
+                                    modal.show();
+                                } else {
+                                    console.error("data-box parent not found");
+                                }
+                            });
+                        })(key);
+
+
+
+
+
+
+
+
+
+
+
+
+                        var subElement = document.createElement('thead');
+                        var row = document.createElement('tr');
+
+                        var cell = document.createElement('th');
+                        cell.setAttribute('scope', 'row');
+                        cell.setAttribute('colspan', '3');
+                        cell.textContent = key.toUpperCase().replace(/_/g, '');
+
+
+                        var headerRow = document.createElement('tr');
+                        var personHeader = document.createElement('th');
+                        personHeader.setAttribute('scope', 'col');
+                        personHeader.textContent = 'NAME';
+                        var interestHeader = document.createElement('th');
+                        interestHeader.setAttribute('scope', 'col');
+                        interestHeader.textContent = 'VALUE';
+                        var ageHeader = document.createElement('th');
+                        ageHeader.setAttribute('scope', 'col');
+                        ageHeader.textContent = 'UNIT';
+
+                        row.appendChild(cell);
+                        headerRow.appendChild(personHeader);
+                        headerRow.appendChild(interestHeader);
+                        headerRow.appendChild(ageHeader);
+
+                        subElement.appendChild(row);
+                        subElement.appendChild(headerRow);
+                        var tbody = document.createElement('tbody');
+
+
+                        createNestedElements(tbody, data[key]);
+                        newTable.appendChild(subElement);
+                        newTable.appendChild(tbody);
+
+                        var greenBox = document.createElement('div');
+                        greenBox.classList.add('green-box'); // Ajouter la classe pour la boîte verte
+                        greenBox.appendChild(newTable); // Mettre la table dans la boîte verte
+
+                        parentElement.appendChild(greenBox); // Ajouter la boîte verte au parent
+                    } else {
+                        if (key.includes('_')) {
+                            var parts = key.split('_');
+                            var lastPart = parts[parts.length - 1];
+                            var parts = key.split('_');
+                            parts.pop();
+                            var name = parts.join(' ');
+                        } else {
+                            name = key
+                        }
+                        var subElement = document.createElement('tr');
+
+                        var nameHeader = document.createElement('td');
+                        nameHeader.setAttribute('scope', 'row');
+                        nameHeader.setAttribute('id', key);
+                        nameHeader.setAttribute('style', 'text-align: left');
+
+
+                        nameHeader.textContent = name;
+
+                        var dataHeader = document.createElement('td');
+                        dataHeader.textContent = data[key];
+
+                        var unitHeader = document.createElement('td');
+                        if (lastPart) {
+                            unitHeader.textContent = lastPart;
+                        }
+
+                        subElement.appendChild(nameHeader);
+
+                        subElement.appendChild(dataHeader);
+                        subElement.appendChild(unitHeader);
+                        parentElement.appendChild(subElement);
+                    }
+                }
+            }
+        }
+
+        function updateDataBox(dataBox, name, desc, data) {
+            let stateElement = document.getElementById(name + "-STATE");
+            let state = ""
+            if (data && data["status"]) {
+
+                for (let key in data["status"]["state"]) {
+                    state += data["status"]["state"][key] + " "
+                }
+            }
+
+            if (state.includes("problem")) {
+                stateElement.style.color = 'red';
+
+                startBlinking(dataBox.id)
+            } else if (data.hasOwnProperty("status") && data["status"]["error"] === "No Answer") {
+                stateElement.style.color = 'red';
+                state = "unplugged"
+                startBlinking(dataBox.id)
+            } else {
+                if (stateElement) {
+                    stateElement.style.color = 'white';
+                    stopBlinking(dataBox.id)
+                }
+            }
+            if (stateElement) {
+
+                stateElement.textContent = 'STATE: ' + state;
+            }
+            for (var key in data) {
+                if (data.hasOwnProperty(key)) {
+                    var table = dataBox.querySelector('table[id="' + key + '"]');
+                    if (table) {
+                        var dataRows = table.querySelectorAll('tbody tr');
+                        dataRows.forEach(function (row) {
+                            var dataName = row.querySelector('td:nth-of-type(1)').id;
+
+                            if (data[key] && data[key][dataName] !== undefined) {
+                                var valueCell = row.querySelector('td:nth-of-type(2)');
+                                valueCell.textContent = data[key][dataName];
+                            }
+                        });
+                    }
+                }
+            }
+        }
+
+
+
+        function addDataBoxWithIdAndName(id, name, desc, data) {
+            var existingDataBox = document.getElementById(id);
+            if (existingDataBox) {
+                updateDataBox(existingDataBox, name, desc, data);
+                return false;
+            }
+
+            var newDataBox = document.createElement('div');
+            newDataBox.classList.add('data-box');
+            newDataBox.classList.add('same-font');
+
+            newDataBox.id = id;
+
+            if (id != "None") {
+                var idParagraph = document.createElement('p');
+                idParagraph.setAttribute('style', 'padding-left: 20px;');
+                idParagraph.setAttribute('id', name + '-ID');
+                idParagraph.textContent = 'ID: ' + id;
+                newDataBox.appendChild(idParagraph);
+
+            }
+            var nameParagraph = document.createElement('p');
+            nameParagraph.setAttribute('style', 'padding-left: 20px;');
+            nameParagraph.textContent = 'NAME: ' + name;
+            nameParagraph.setAttribute('id', name + '-NAME');
+            newDataBox.appendChild(nameParagraph);
+
+            if (id != "None") {
+                var descParagraph = document.createElement('p');
+                descParagraph.setAttribute('style', 'padding-left: 20px;');
+                descParagraph.textContent = 'DESC: ' + desc;
+                descParagraph.setAttribute('id', name + '-DESC');
+                newDataBox.appendChild(descParagraph);
+            }
+            var stateParagraph = document.createElement('p');
+            stateParagraph.setAttribute('style', 'padding-left: 20px;');
+
+
+            let state = ""
+            if (data["status"] && data["status"]["state"]) {
+                for (let key in data["status"]["state"]) {
+                    state += data["status"]["state"][key] + " "
+                }
+                stateParagraph.textContent = 'STATE: ' + state;
+                stateParagraph.setAttribute('id', name + '-STATE');
+
+                newDataBox.appendChild(stateParagraph);
+            }
+
+
+
+
+            createNestedElements(newDataBox, data);
+
+            document.querySelector('main').appendChild(newDataBox);
+            return true;
+        }
+
+
+
+
+
+        function startBlinking(elementId) {
+            let element = document.getElementById(elementId);
+            if (element && element.classList.contains("data-box")) {
+                element.classList.add("blinking-border");
+            } else {
+                console.error("L'élément avec l'ID " + elementId + " n'est pas de la classe 'data-box'.");
+            }
+        }
+
+        function stopBlinking(elementId) {
+            let element = document.getElementById(elementId);
+            if (element && element.classList.contains("data-box")) {
+                element.classList.remove("blinking-border");
+            } else {
+                console.error("L'élément avec l'ID " + elementId + " n'est pas de la classe 'data-box'.");
+            }
+        }
+
+
+        function showToast(title, message, type) {
+            var toastElement = document.createElement('div');
+            toastElement.classList.add('toast');
+            toastElement.classList.add(type);
+            toastElement.setAttribute('role', 'alert');
+            toastElement.setAttribute('aria-live', 'assertive');
+            toastElement.setAttribute('aria-atomic', 'true');
+
+            toastElement.innerHTML = `
+                <div class="toast-header" >
+                <strong class="me-auto">${title}</strong>
+                <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+                </div>
+                <div class="toast-body">
+                ${message}
+                </div>
+            `;
+
+            document.getElementById('toastContainer').appendChild(toastElement);
+
+            var bsToast = new bootstrap.Toast(toastElement);
+
+            bsToast.show();
+
+            setTimeout(function () {
+                bsToast.hide();
+                toastElement.remove();
+            }, 30000);
+        }
+
+
+
+
+        let who;
+        let history;
+        let database;
+        var socket = io();
+        $(document).ready(function () {
+            socket.emit('get_history_toasts');
+
+            socket.on('enter_fullscreen', () => {
+
+            });
+
+            socket.emit('who');
+            socket.on('liste_slave', function (msg) {
+                who = msg;
+                console.log(who);
+
+            });
+
+
+            socket.on('database', function (msg) {
+                database = msg.data;
+            });
+
+
+            socket.on('mydata', function (msg) {
+                var valeurs = Object.values(msg.data);
+                for (var key in msg.data) {
+                    if (msg.data.hasOwnProperty(key)) {
+                        var nomObjet = key;
+
+                        var objetCourant = msg.data[key];
+                        if (nomObjet != "timestamp") {
+                            let desc = ""
+                            if (nomObjet == "RPC3300") {
+                                desc = "Recline Actuator"
+                                id = who.data[nomObjet]["id"]
+                            } else if (nomObjet == "RPC3301") {
+                                desc = "Tracking Actuator"
+                                id = who.data[nomObjet]["id"]
+                            } else if (nomObjet == "P4C1790") {
+                                desc = "Lumber pump"
+                                id = who.data[nomObjet]["id"]
+                            } else if (nomObjet == "COMFORT") {
+                                desc = "None"
+                                id = "None"
+                            }
+                            addDataBoxWithIdAndName(id, nomObjet, desc, objetCourant);
+                        }
+
+                    }
+                }
+            });
+
+            socket.on('new_slave', function (msg) {
+                showToast('New Slave', `Device ${msg["name"]} up with id : ${msg["id"]}.`, msg["type"]);
+                console.log(msg);
+            });
+
+            socket.on('lost_slave', function (msg) {
+                showToast('Lost Slave', `Device ${msg["name"]} lost with id : ${msg["id"]}.`, msg["type"]);
+                console.log(msg);
+            });
+
+
+            socket.on('crash_slave', function (msg) {
+                showToast('Crash on Slave', `Device ${msg["name"]} error with id : ${msg["id"]}.`, "warning");
+                console.log(msg);
+            });
+
+            socket.on('history_toasts', function (msg) {
+                history = msg.history
+            });
+
+
+            socket.onclose = function (event) {
+                console.log('Connection closed');
+            };
+
+
+            function emitCommandPeriodically() {
+                socket.emit('get_history_toasts');
+            }
+
+
+            setInterval(emitCommandPeriodically, 1000); // 5000 ms = 5 secondes
+
+
+        });
+        const rotatingImage = document.getElementById('rotatingImage');
+        const toggleRotationBtn = document.getElementById('toggleRotationBtn');
+        const translationValue = 10;
+
+        let isRotating = true;
+
+        toggleRotationBtn.addEventListener('click', () => {
+            if (isRotating) {
+                rotatingImage.style.transform = `translateX(${translationValue}px)`;
+                rotatingImage.style.transform += `translateY(-${translationValue}px)`;
+                socket.emit('lduon');
+
+            }
+            else {
+                rotatingImage.style.transform = 'translateX(0px)';
+                rotatingImage.style.transform += 'translateY(0px)';
+                socket.emit('lduoff');
+
+            }
+
+            isRotating = !isRotating;
+        });
+
+
+
+    </script>
+
+</body>
+
+</html>

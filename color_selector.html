@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Color Selector with Hue and Luminosity Gradient</title>
+<style>
+    canvas {
+        border-radius: 50%; /* Adjust the radius to your preference */
+        border: none; /* Remove the border */
+    }
+</style>
+</head>
+<body>
+
+<canvas id="colorCanvas" width="300" height="300"></canvas>
+
+<script>
+    const canvas = document.getElementById('colorCanvas');
+    const ctx = canvas.getContext('2d');
+
+    for (let x = 0; x < canvas.width; x++) {
+        const hue = x / canvas.width * 360;
+        for (let y = 0; y < canvas.height; y++) {
+            const luminosity = 100 - (y / canvas.height * 100);
+            ctx.fillStyle = `hsl(${hue}, 100%, ${luminosity}%)`;
+            ctx.fillRect(x, y, 1, 1);
+        }
+    }
+
+    canvas.addEventListener('click', function(event) {
+        const x = event.offsetX;
+        const y = event.offsetY;
+        const imageData = ctx.getImageData(x, y, 1, 1);
+        const pixel = imageData.data;
+
+        const rgb = `rgb(${pixel[0]}, ${pixel[1]}, ${pixel[2]})`;
+        document.body.style.backgroundColor = rgb;
+    });
+</script>
+
+</body>
+</html>
