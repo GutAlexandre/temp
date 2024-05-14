@@ -11,7 +11,13 @@ pipeline {
         stage('Lancement de l\'application') {
             steps {
                 // Démarrer l'application Flask en arrière-plan avec nohup
-                sh 'nohup python3 jeDanseLeMain.py > output.log 2>&1 &'
+                script {
+                    // Lancer l'application Flask en arrière-plan
+                    def proc = sh(script: 'nohup python3 jeDanseLeMain.py > output.log 2>&1 &', returnStdout: true)
+                    // Récupérer l'adresse IP du serveur Flask à partir de la sortie du processus
+                    def ip = proc.trim()
+                    echo "Serveur Flask lancé à l'adresse : ${ip}"
+                }
             }
         }
     }
