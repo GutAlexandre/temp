@@ -21,7 +21,7 @@ app.config['SECRET_KEY'] = 'secret!'
 socketio = SocketIO(app, async_mode=async_mode)
 thread = None
 thread_lock = Lock()
-
+print("up")
 
 #====================================
 #part can
@@ -856,3 +856,5 @@ def test_disconnect():
 
 def runWebServer(debug: bool, host : str)-> None:
     socketio.run(app, allow_unsafe_werkzeug=True,debug=debug, host=host)
+    print("run")
+
