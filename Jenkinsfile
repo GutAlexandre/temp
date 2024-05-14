@@ -15,7 +15,7 @@ pipeline {
                     // Lancer l'application Flask en arrière-plan
                     def proc = sh(script: 'nohup python3 jeDanseLeMain.py > output.log 2>&1 &', returnStdout: true)
                     // Récupérer l'adresse IP du serveur Flask à partir de la sortie du processus
-                    def ip = proc.trim()
+                    def ip = sh(script: 'ifconfig')
                     echo "Serveur Flask lancé à l'adresse : ${ip}"
                 }
             }
