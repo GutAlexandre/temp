@@ -27,7 +27,7 @@ print("up")
 #part can
 import time
 import signal
-#from CanMessage import can_Com, can_Bus, repeated_Timer
+from CanMessage import can_Com, can_Bus, repeated_Timer
 import threading
 import os
 import sys
