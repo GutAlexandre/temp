@@ -2,22 +2,19 @@ pipeline {
     agent any
     
     stages {
-        stage('Build Docker Image') {
+
+        stage('Installation des dépendances') {
             steps {
-                script {
-                    // Construire l'image Docker
-                    docker.build('flask-app', '-f Dockerfile .')
-                }
+                sh 'python3 -m pip install flask-socketio flask python-can --break-system-packages'
             }
         }
         
-        stage('Run Docker Container') {
+        stage('Lancement de l\'application') {
             steps {
-                script {
-                    // Exécuter le conteneur Docker à partir de l'image précédemment construite
-                    docker.image('flask-app').run('-d -p 5000:5000')
-                }
+                // Démarrer l'application Flask
+                sh 'python3 jeDanseLeMain.py &'
             }
         }
     }
+    
 }
